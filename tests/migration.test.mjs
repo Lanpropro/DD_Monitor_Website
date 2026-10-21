@@ -22,6 +22,7 @@ test('the website is independent from plugin source and keeps original release d
 })
 
 test('deployment is explicit and validation runs in the standalone repository', () => {
+  assert.ok(read('.github/workflows/ci.yml').includes('workflow_dispatch:'))
   const workflow = read('.github/workflows/pages.yml')
   assert.ok(workflow.includes('workflow_dispatch:'))
   assert.ok(!workflow.includes('  push:'))

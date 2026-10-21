@@ -1,5 +1,6 @@
 name: Validate website
 on:
+  workflow_dispatch:
   push:
     branches: [main, develop]
   pull_request:
