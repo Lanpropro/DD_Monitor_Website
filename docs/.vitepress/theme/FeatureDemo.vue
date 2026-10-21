@@ -17,12 +17,12 @@ const presets = [
 ]
 // 修改下方 name 即可同步更新关注卡片、画面标签和操作提示；id 用于演示时间轴，请保持不变。
 const cards = [
-  { id: 'a', name: '演示主播 A', image: '01.webp' },
-  { id: 'b', name: '演示主播 B', image: '02.webp' },
-  { id: 'c', name: '演示主播 C', image: '03.webp' },
-  { id: 'd', name: '演示主播 D', image: '04.webp' },
-  { id: 'e', name: '演示主播 E', image: '05.webp' },
-  { id: 'f', name: '演示主播 F', image: '06.webp' }
+  { id: 'a', name: '羽啾chu2u', image: '01.webp' },
+  { id: 'b', name: '雨纪_Ameki', image: '02.webp' },
+  { id: 'c', name: '岁己SUI', image: '03.webp' },
+  { id: 'd', name: '三理Mit3uri', image: '04.webp' },
+  { id: 'e', name: '法里达', image: '05.webp' },
+  { id: 'f', name: '不怜水Hisame', image: '06.webp' }
 ]
 const presetId = ref('corner')
 const preset = computed(() => presets.find(item => item.id === presetId.value))

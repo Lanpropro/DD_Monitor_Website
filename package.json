@@ -2,13 +2,23 @@
   "name": "dd-monitor-website",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "docs:dev": "vitepress dev docs --host 127.0.0.1 --port 5173",
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs --host 127.0.0.1 --port 4173",
-    "test:website": "node --test tests/website.test.mjs"
+    "test:website": "node --test tests/*.test.mjs",
+    "dev": "npm run docs:dev",
+    "build": "npm run docs:build",
+    "preview": "npm run docs:preview",
+    "test": "npm run test:website"
   },
-  "devDependencies": { "vitepress": "1.6.4" },
-  "overrides": { "vite": "6.4.3" }
+  "devDependencies": {
+    "vitepress": "1.6.4"
+  },
+  "overrides": {
+    "vite": "6.4.3"
+  }
 }

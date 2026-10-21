@@ -1,0 +1,45 @@
+# DD Monitor Website
+
+DD 监控室 CE 的软件介绍、插件展示与下载网站，使用 VitePress 构建。
+
+- 网站源码：[DD_Monitor_Website](https://github.com/Lanpropro/DD_Monitor_Website)
+- 软件本体：[DD_Monitor_CE](https://github.com/Lanpropro/DD_Monitor_CE)
+- 插件与安装包：[DD_Monitor_Plugins](https://github.com/Lanpropro/DD_Monitor_Plugins)
+
+## 本地启动
+
+需要 Node.js 22 或更高版本。首次运行安装依赖：
+
+```powershell
+cd F:\CodexAppManager\Code\DD_Monitor_Website
+npm ci
+npm run dev
+```
+
+打开 http://127.0.0.1:5173/DD_Monitor_Website/ ，终端保持运行，按 Ctrl+C 停止。
+
+## 修改内容
+
+- 首页：`docs/.vitepress/theme/HomePage.vue`
+- 主播名称：`docs/.vitepress/theme/FeatureDemo.vue` 的 `cards` 数组
+- 插件卡片文案与下载信息：`docs/data/plugins.json`
+- 页面文章：`docs/*.md`、`docs/plugins/*.md`
+- 截图、缩略图、视频：`docs/public/`
+- 网站路径与导航：`docs/.vitepress/config.mjs`
+
+## 构建与验证
+
+```powershell
+npm run build
+npm test
+```
+
+输出目录为 `docs/.vitepress/dist/`。构建后使用 `npm run preview`，访问 http://127.0.0.1:4173/DD_Monitor_Website/ 。
+
+## 部署
+
+CI 自动构建并运行测试；GitHub Pages 发布通过手动工作流执行，具体见 [部署说明](WEBSITE.md)。
+插件和软件安装包继续从原仓库 Releases 下载，本仓库不保存插件源码和账号配置。
+
+迁移记录见 [MIGRATION.md](MIGRATION.md)，开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，素材来源见 [ASSETS.md](docs/public/ASSETS.md)。
+保留原项目 [LGPL-2.1 许可](LICENSE)。第三方截图、直播画面和平台标识的权利归各自权利人。

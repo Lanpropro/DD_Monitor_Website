@@ -1,10 +1,6 @@
-__pycache__/
-*.pyc
-.venv/
-dist/
-.idea/
-.vscode/
 node_modules/
 docs/.vitepress/cache/
 docs/.vitepress/dist/
 work/
+.vscode/
+.idea/

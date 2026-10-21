@@ -7,10 +7,10 @@ import { createAppearanceToggle } from '../docs/.vitepress/theme/appearance.mjs'
 import { TOUR_CHAPTERS, TOUR_DURATION, viewingTourFrame } from '../docs/.vitepress/theme/viewing-tour.mjs'
 
 const root = resolve(import.meta.dirname, '..')
-const read = path => readFileSync(resolve(root, path), 'utf8')
+const read = path => readFileSync(resolve(root, path), 'utf8').replace(/\r\n/g, '\n')
 const plugins = JSON.parse(read('docs/data/plugins.json'))
 const dist = resolve(root, 'docs/.vitepress/dist')
-const base = '/DD_Monitor_Plugins/'
+const base = '/DD_Monitor_Website/'
 
 test('homepage uses the approved product name and viewing copy', () => {
   const source = read('docs/.vitepress/theme/HomePage.vue')
@@ -152,12 +152,10 @@ const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(item => {
   return item.isDirectory() ? walk(path) : [path]
 })
 
-test('catalog identities agree with plugin manifests and published versions are explicit', () => {
+test('catalog identities and published versions are explicit without a plugin source checkout', () => {
   assert.equal(plugins.length, 3)
-  assert.equal(new Set(plugins.map(p => p.id)).size, 3)
+  assert.deepEqual(plugins.map(p => p.id).sort(), ['domestic_live', 'global_live', 'match_sync'])
   for (const p of plugins) {
-    const manifest = JSON.parse(read(`plugins/${p.id}/plugin.json`))
-    assert.equal(p.name, manifest.name)
     // Published artifacts can be newer than this checkout (e.g. match_sync).
     assert.match(p.version, /^\d+\.\d+(?:\.\d+)?$/)
     assert.equal(p.minAppVersion, '0.3')
@@ -216,7 +214,7 @@ test('website screenshot derivatives remove only the native title bar', () => {
 
 test('homepage exposes software and every plugin download before JavaScript runs', () => {
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
-  assert.ok(home.includes('href="/DD_Monitor_Plugins/download"'))
+  assert.ok(home.includes('href="/DD_Monitor_Website/download"'))
   assert.ok(home.includes('id="plugins"'))
   assert.ok(home.includes('screenshots/landscape.webp'))
   assert.ok(!home.includes('查看完整截图'), 'the presentation should not show a redundant screenshot link')
@@ -228,7 +226,7 @@ test('homepage exposes software and every plugin download before JavaScript runs
   for (const plugin of plugins) {
     assert.ok(home.includes(plugin.download), `missing homepage download: ${plugin.id}`)
     assert.ok(home.includes(plugin.name), `missing homepage plugin: ${plugin.id}`)
-    assert.ok(home.includes(`/DD_Monitor_Plugins/plugins/${plugin.id}`))
+    assert.ok(home.includes(`/DD_Monitor_Website/plugins/${plugin.id}`))
   }
 })
 

@@ -16,9 +16,9 @@
       "douyin.ico"
     ],
     "features": [
-      "实际画质档位",
-      "静音悬停预览",
-      "聊天弹幕"
+      "无需切换软件",
+      "聊天弹幕同步",
+      "登录拉取关注"
     ],
     "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/domestic-live-v1.2/domestic_live-1.2.zip",
     "sha256": "eb61593255633eaf53aeef195472a89187d31fde7b3d01157334bb66277b2c0a",
@@ -49,9 +49,9 @@
       "youtube.ico"
     ],
     "features": [
-      "自动画质",
-      "静音悬停预览",
-      "聊天弹幕"
+      "自动选择画质",
+      "聊天弹幕同步",
+      "流畅度优化"
     ],
     "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/v1.1/global_live-1.1.zip",
     "sha256": "04b4fa6c24d17b44143c3b091826b01a4d68db97944c685f2690716132682094",
@@ -87,7 +87,6 @@
     ],
     "features": [
       "自动对齐比赛画面",
-      "主画面最高画质",
       "多路混音与合并弹幕"
     ],
     "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.2/match_sync-1.2.zip",

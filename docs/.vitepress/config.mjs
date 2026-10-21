@@ -4,10 +4,10 @@ export default defineConfig({
   lang: 'zh-CN',
   title: 'DD 监控室 CE',
   description: '多画面直播观看工具，软件介绍、下载与独立插件。',
-  base: '/DD_Monitor_Plugins/',
+  base: '/DD_Monitor_Website/',
   cleanUrls: true,
   appearance: 'dark',
-  head: [['link', { rel: 'icon', href: '/DD_Monitor_Plugins/logo.svg' }]],
+  head: [['link', { rel: 'icon', href: '/DD_Monitor_Website/logo.svg' }]],
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'DD 监控室 CE',
@@ -31,7 +31,7 @@ export default defineConfig({
     darkModeSwitchLabel: '外观',
     sidebarMenuLabel: '目录',
     returnToTopLabel: '返回顶部',
-    socialLinks: [{ icon: 'github', link: 'https://github.com/Lanpropro/DD_Monitor_Plugins' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/Lanpropro/DD_Monitor_Website' }],
     footer: {
       message: '基于 DD监控室的二次开发 · LGPL-2.1 · 平台标识仅用于来源识别',
       copyright: 'DD 监控室 CE · 软件与插件分别维护'

@@ -3,9 +3,9 @@ import { withBase } from 'vitepress'
 import { onMounted, onUnmounted, ref } from 'vue'
 
 const shots = [
-  { file: 'landscape.webp', label: '横屏观看', caption: '一个主画面，多路小画面。喜欢的直播，各有位置。' },
-  { file: 'danmaku.webp', label: '弹幕布局', caption: '直播与聊天同屏，弹幕跟随主画面。' },
-  { file: 'portrait.webp', label: '竖屏布局', caption: '关注移到顶部，画面纵向展开。' }
+  { file: 'landscape.webp', label: '横屏观看', caption: '' },
+  { file: 'danmaku.webp', label: '弹幕布局', caption: '' },
+  { file: 'portrait.webp', label: '竖屏布局', caption: '' }
 ]
 const active = ref(0)
 const story = ref(null)
@@ -93,7 +93,7 @@ onUnmounted(() => {
             <span class="gallery-selection" aria-hidden="true"></span>
             <button v-for="(shot, i) in shots" :key="shot.file" :aria-pressed="active === i" @click="selectShot(i)">{{ shot.label }} <span class="layout-ratio" aria-hidden="true">{{ i === 2 ? '5:8' : '16:9' }}</span></button>
           </div>
-          <p class="screenshot-source">截图来自现有项目文档，不同版本的界面细节可能有所调整。</p>
+          <p class="screenshot-source"></p>
         </div>
         <slot />
       </div>
