@@ -24,4 +24,6 @@ aside: false
 在软件「设置 → 插件」中导入 ZIP，勾选启用，再保存并重启。[查看安装与升级步骤](/guide#安装插件)。
 
 下载每个插件自己的 ZIP。GitHub 自动生成的 **Source code ZIP** 是整个仓库源码，不能作为单插件导入。
+
+<PluginSubmission />
 </main>

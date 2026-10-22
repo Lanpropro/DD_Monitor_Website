@@ -2,6 +2,7 @@
 import { withBase } from 'vitepress'
 import { onMounted, onUnmounted, ref } from 'vue'
 import plugins from '../../data/plugins.json'
+import PluginSubmission from './PluginSubmission.vue'
 import release from '../../data/software-release.json'
 import SplashWall from './SplashWall.vue'
 import ScreenshotShowcase from './ScreenshotShowcase.vue'
@@ -100,6 +101,7 @@ onUnmounted(() => {
         <div class="plugin-demo-content"><MatchSyncTimeline v-if="plugins[previewPlugin].id === 'match_sync'" /><PluginRecording v-else :key="plugins[previewPlugin].id" :plugin="plugins[previewPlugin]" /></div>
       </div>
       <p class="plugin-compatibility">插件独立下载、独立启用。安装前请查看<a :href="withBase('/download#插件兼容性')">软件版本与兼容要求</a>。</p>
+      <PluginSubmission />
     </section>
 
     <section class="home-bottom"><div data-reveal><p class="eyebrow">准备好你的下一场观看</p><h2>打开软件，<br />把喜欢的直播拖进来。</h2></div><div class="bottom-actions" data-reveal data-reveal-delay="120"><a class="action primary" :href="withBase('/download')">获取软件 <span aria-hidden="true">↗</span></a><a :href="withBase('/guide')">第一次使用？阅读安装帮助</a></div></section>
