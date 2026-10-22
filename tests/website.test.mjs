@@ -1159,3 +1159,66 @@ test('final viewing copy retains the concise tip and removes the match footer no
   assert.ok(!viewing.includes('预览只演示操作，不播放直播声音。'))
   assert.ok(!read('docs/.vitepress/theme/MatchSyncDemo.vue').includes('match-demo-note'))
 })
+
+function mountWallImages({ supported = true } = {}) {
+  const observers = []
+  const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
+  const context = { ref:value => ({ value }), reactive:value => value, withBase:value => value, nextTick:fn => fn(), onMounted() {}, onUnmounted() {} }
+  if (supported) context.IntersectionObserver = class {
+    constructor(callback,options) { this.callback = callback; this.options = options; this.targets = []; this.closed = false; observers.push(this) }
+    observe(tile) { this.targets.push(tile) }
+    disconnect() { this.closed = true }
+  }
+  const state = runInNewContext(script + '\n;({ section, imageTiles, imageSource, requestedImages, readyImages, fullImages, requestImage, markReady, markFailed, loadNearby, observeImages, setTiles:tiles => { tileNodes = tiles } })',context)
+  state.section.value = {}
+  return { state, observers }
+}
+
+test('wall initially renders a single lightweight sprite without requesting all clear images', () => {
+  const home = readFileSync(resolve(dist,'index.html'),'utf8')
+  const wall = home.match(/<section class="splash"[\s\S]*?<\/section>/)[0]
+  assert.equal((wall.match(/data-source=/g) || []).length,224)
+  assert.equal((wall.match(/<img[^>]*\ssrc=/g) || []).length,0)
+  assert.ok(wall.includes(`${base}wall/preview.webp`))
+  const sprite = readFileSync(resolve(root,'docs/public/wall/preview.webp'))
+  assert.ok(sprite.length < 35 * 1024)
+  let originals = 0, thumbs = 0
+  for (let i=1;i<=56;i++) {
+    const file = String(i).padStart(2,'0') + '.webp'
+    originals += readFileSync(resolve(root,'docs/public/wall',file)).length
+    thumbs += readFileSync(resolve(root,'docs/public/wall/thumbs',file)).length
+  }
+  assert.ok(thumbs < originals * .45, 'clear thumbnails must reduce full-wall image bytes by over 55%')
+})
+
+test('visible wall copies share one image request and hover upgrades only the selected identity', () => {
+  const { state:s, observers } = mountWallImages()
+  const positions = [...s.imageTiles.value.entries()]
+  const [first,id] = positions[0], copies = positions.filter(([,value]) => value === id).map(([position]) => position)
+  assert.equal(s.imageSource(first),undefined)
+  const targets = [{ dataset:{ image:String(id) } },{ dataset:{ image:String(id) } },{ dataset:{ image:'56' } }]
+  s.setTiles(targets); s.observeImages()
+  assert.equal(observers[0].options.root,s.section.value)
+  assert.equal(observers[0].options.rootMargin,'96px')
+  observers[0].callback(targets.map((target,index) => ({ target,isIntersecting:index < 2 })))
+  assert.equal(s.requestedImages.value.size,1)
+  assert.equal(s.requestedImages.value.has(56),id === 56)
+  const file = String(id).padStart(2,'0') + '.webp'
+  for (const position of copies) assert.equal(s.imageSource(position),'/wall/thumbs/' + file)
+  s.markReady(id); assert.ok(s.readyImages.value.has(id))
+  s.requestImage(id,true)
+  for (const position of copies) assert.equal(s.imageSource(position),'/wall/' + file)
+  assert.equal(s.fullImages.value.size,1)
+  s.markFailed(id); assert.equal(s.readyImages.value.has(id),false); assert.equal(s.imageSource(first),'/wall/thumbs/' + file)
+  s.observeImages(); assert.ok(observers[0].closed)
+})
+
+test('wall image fallback loads only compact thumbnails and removes observer on unmount', () => {
+  const { state:s } = mountWallImages({ supported:false })
+  s.observeImages(); assert.equal(s.requestedImages.value.size,56); assert.equal(s.fullImages.value.size,0)
+  const source = read('docs/.vitepress/theme/SplashWall.vue')
+  assert.ok(source.includes('onUnmounted(() => {\n  imageObserver?.disconnect()'))
+  assert.ok(source.includes('nextTick(observeImages)'))
+  assert.ok(source.includes('decoding="async"'))
+  assert.ok(source.includes('.splash-tile, .splash-tile img { animation: none; transition: none; }'))
+})

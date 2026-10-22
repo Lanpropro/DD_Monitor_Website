@@ -48,4 +48,12 @@ CI 自动构建并运行测试；GitHub Pages 发布通过手动工作流执行�
 
 ## 自定义域名部署
 
-正式域名为 `ddmonitor.top`。Pages 手动部署工作流使用 `SITE_BASE=/` 构建并测试，保证站点位于域名根路径；默认本地预览仍为 `/DD_Monitor_Website/`。域名需要在 GitHub Pages 设置中绑定，并在腾讯云 DNSPod 添加 GitHub Pages 的四条 A 记录及 www CNAME；证书就绪后启用 Enforce HTTPS。
+正式域名为 `ddmonitor.top`。Pages 手动部署工作流使用 `SITE_BASE=/` 构建并测试，保证站点位于域名根路径；默认本地预览仍为 `/DD_Monitor_Website/`。域名需要在 GitHub Pages 设置中绑定，并在腾讯云 DNSPod 添加 GitHub Pages 的 A 记录及 www CNAME；证书就绪后启用 Enforce HTTPS。
+
+### 首次上线记录（2026-10-22）
+
+- 地址：https://ddmonitor.top/ ，`https://www.ddmonitor.top/` 自动跳转到主域名。
+- 发布源码：`main` 的 `93afdb9e63d455fd165236e7d4486bf7805443b1`；部署工作流：https://github.com/Lanpropro/DD_Monitor_Website/actions/runs/39784554631 。
+- DNSPod 免费套餐下保留两条 `@` A 记录：`185.199.108.153`、`185.199.109.153`；`www` CNAME 为 `lanpropro.github.io`，TTL 均为600秒。同名多IP数量受套餐限制，未购买额外服务。
+- GitHub Pages 发布来源为 GitHub Actions，自定义域名为 `ddmonitor.top`，已启用 Enforce HTTPS。
+- 验证：默认路径和根路径构建各63项测试通过；线上首页HTTPS、www跳转、软件页面及56张不同墙图加载正常。
