@@ -261,12 +261,12 @@ test('opening screen shows the recorded tiles in the placeholder wall before any
   assert.equal(wallTiles, 224, 'the wall repeats its 56 tiles twice per axis so it wraps without a seam')
   const splash = read('docs/.vitepress/theme/SplashWall.vue')
   assert.ok(!home.includes('splash-ring'), 'recordings must live in the wall rather than a separate overlay')
-  for (let index = 1; index <= 55; index++) {
+  for (let index = 1; index <= 56; index++) {
     const file = String(index).padStart(2, '0') + '.webp'
     assert.ok(existsSync(resolve(root, `docs/public/wall/${file}`)))
     assert.equal((wallContent.match(new RegExp(`${base}wall/${file}`, 'g')) || []).length, 4, `${file} must appear in all four repeated wall quadrants`)
   }
-  assert.equal((wallContent.match(/\/wall\/\d{2}\.webp/g) || []).length, 220, 'only the supplied recordings replace placeholders')
+  assert.equal((wallContent.match(/\/wall\/\d{2}\.webp/g) || []).length, 224, 'only the supplied recordings replace placeholders')
   assert.ok(home.includes('拖动查看'), 'the opening screen must say it can be dragged')
   assert.ok(home.indexOf('class="splash"') < home.indexOf('class="showcase"'), 'the wall comes before the page content')
 })
@@ -318,15 +318,15 @@ test('supplied recordings spiral outward from the center without overlapping til
     'recordings 21–29 must continue around the upper and right edges of the existing spiral')
   assert.deepEqual(offsets.slice(29, 52), ['3,2', '3,3', '2,3', '1,3', '0,3', '-1,3', '-2,3', '-3,3', '-3,2', '-3,1', '-3,0', '-3,-1', '-3,-2', '-3,-3', '-2,-3', '-1,-3', '0,-3', '1,-3', '2,-3', '3,-3', '3,4', '2,4', '1,4'],
     'recordings 30–52 must fill the outer edge and available bottom row without moving earlier recordings')
-  assert.deepEqual(offsets.slice(52), ['0,4', '-1,4', '-2,4'], 'recordings 53–55 must continue along the remaining bottom row')
-  assert.equal(offsets.length, 55, 'every supplied recording needs one position')
+  assert.deepEqual(offsets.slice(52), ['0,4', '-1,4', '-2,4', '-3,4'], 'recordings 53–56 must continue along the remaining bottom row')
+  assert.equal(offsets.length, 56, 'every supplied recording needs one position')
   assert.equal(new Set(offsets).size, offsets.length, 'tile positions must not overlap')
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
   assert.ok(!home.includes('class="splash-ring"'), 'the recordings must not be rendered as a separate centered layer')
   assert.match(home, /class="splash-tile"[^>]*>\s*<img[^>]+wall\/01\.webp/, 'the first recording must render inside a wall tile')
 })
 
-test('all fifty-five recordings survive desktop and mobile wall repetition without overwriting each other', () => {
+test('all fifty-six recordings survive desktop and mobile wall repetition without overwriting each other', () => {
   const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm, '')
   const { buildImageTiles, wrap } = runInNewContext(script + '\n;({ buildImageTiles, wrap })', {
     ref: value => ({ value }), reactive: value => value, withBase: value => value,
@@ -337,8 +337,8 @@ test('all fifty-five recordings survive desktop and mobile wall repetition witho
   assert.equal(wrap(2501, 1000), -499, 'long drags must retain their phase across multiple periods')
   for (const columns of [14, 8]) {
     const tiles = buildImageTiles(columns)
-    assert.equal(tiles.size, 220, `${columns} columns must retain all four copies of all fifty-five recordings`)
-    for (let recording = 1; recording <= 55; recording++) {
+    assert.equal(tiles.size, 224, `${columns} columns must retain all four copies of all fifty-six recordings`)
+    for (let recording = 1; recording <= 56; recording++) {
       assert.equal([...tiles.values()].filter(value => value === recording).length, 4)
     }
     for (const tile of tiles.keys()) assert.ok(tile >= 1 && tile <= 224)
@@ -1113,7 +1113,7 @@ test('recording pauses offscreen, in background and for reduced motion and guard
 test('passive match preview combines real recording and overlay without simulated controls or screenshot stand-ins', () => {
   const home = readFileSync(resolve(dist,'index.html'),'utf8')
   const panel = home.split('id="plugin-demo"')[1].split('plugin-compatibility')[0]
-  for (const item of ['<video','videos/match-sync-recording.mp4','class="match-spotlight"','二路演示进度','标注随视频进度同步']) assert.ok(panel.includes(item),item)
+  for (const item of ['<video','videos/match-sync-recording.mp4','class="match-spotlight"','二路演示进度']) assert.ok(panel.includes(item),item)
   for (const removed of ['<button','<input','<select','previews/match-sync.webp','match-detail','match-cursor','match-comments']) assert.ok(!panel.includes(removed),removed)
   const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
   assert.ok(!source.includes('@click')); assert.ok(!source.includes('@input'))
@@ -1130,18 +1130,25 @@ test('confirmed domestic identities include six local cached avatars and oversea
   assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
 })
 
-test('wall position exchanges apply in the requested sequence while position 56 remains unfilled', () => {
+test('wall position exchanges apply in the requested sequence while position 56 receives the final supplied recording', () => {
   const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
   const { IMAGE_ORDER, buildImageTiles } = runInNewContext(script + '\n;({ IMAGE_ORDER, buildImageTiles })', {
     withBase:value => value, ref:value => ({ value }), reactive:value => value, onMounted() {}, onUnmounted() {}
   })
   const expected = new Map([[20,6],[6,20],[52,7],[7,52],[42,22],[22,42],[19,9],[9,19],[8,53],[23,8],[53,23],[15,17],[17,15]])
-  for (let position=1;position<=55;position++) assert.equal(IMAGE_ORDER[position - 1],expected.get(position) ?? position,`position ${position}`)
-  assert.equal(IMAGE_ORDER.length,55); assert.equal(new Set(IMAGE_ORDER).size,55)
-  assert.ok(!existsSync(resolve(root,'docs/public/wall/56.webp')))
+  for (let position=1;position<=56;position++) assert.equal(IMAGE_ORDER[position - 1],expected.get(position) ?? position,`position ${position}`)
+  assert.equal(IMAGE_ORDER.length,56); assert.equal(new Set(IMAGE_ORDER).size,56)
+  assert.ok(existsSync(resolve(root,'docs/public/wall/56.webp')))
   for (const columns of [14,8]) {
     const tiles = buildImageTiles(columns)
-    assert.equal(tiles.size,220)
-    assert.equal([...tiles.values()].filter(image => image === 56).length,0)
+    assert.equal(tiles.size,224)
+    assert.equal([...tiles.values()].filter(image => image === 56).length,4)
   }
+})
+
+test('overseas preview omits the removed explanatory caption without leaving an empty caption', () => {
+  assert.equal(platformPreviews.global_live.note,'')
+  const source = read('docs/.vitepress/theme/PlatformPreview.vue')
+  assert.ok(source.includes('<figcaption v-if="preview.note">'))
+  assert.ok(!JSON.stringify(platformPreviews).includes('九格取自宣传片剪辑'))
 })

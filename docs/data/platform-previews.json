@@ -79,7 +79,7 @@
   },
   "global_live": {
     "image": "global-live.webp",
-    "note": "九格取自宣传片剪辑，包含不同时间的画面；标注按截图逐格对应。",
+    "note": "",
     "cells": [
       {
         "name": "ImperialHal",

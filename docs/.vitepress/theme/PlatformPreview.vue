@@ -31,7 +31,7 @@ const rectStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rect[2
         <img v-if="cell.avatar" class="callout-avatar" :src="withBase('/previews/avatars/' + cell.avatar)" alt="" width="32" height="32" loading="lazy" /><span class="callout-number">{{ String(i + 1).padStart(2,'0') }}</span><span class="callout-text"><strong>{{ cell.name }}</strong><span><img v-if="cell.icon" :src="withBase('/platforms/' + cell.icon)" alt="" />{{ cell.platform || '平台待确认' }}</span></span>
       </button>
     </div>
-    <figcaption>{{ preview.note }}</figcaption>
+    <figcaption v-if="preview.note">{{ preview.note }}</figcaption>
   </figure>
 </template>
 
