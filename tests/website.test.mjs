@@ -1055,59 +1055,45 @@ test('return button lands at the introduction with the wall behind it, never at 
 
 function mountMatchDemo() {
   const script = read('docs/.vitepress/theme/MatchSyncDemo.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
-  return runInNewContext(script + '\n;({ steps, sources, active, main, secondary, offsets, volumes, muted, merged, relativeOffset, offsetMin, offsetMax, offsetText, selectStep, selectMain, setSecondary, setOffset, setVolume, toggleMute, toggleMerged, reset })', {
+  return runInNewContext(script + '\n;({ steps, active, volumes, muted, relativeOffset, offsetText, selectStep, setOffset, setVolume, toggleMute, reset })', {
     computed:fn => ({ get value() { return fn() } }), ref:value => ({ value })
   })
 }
 
-test('the match demo switches its main source and recalculates offsets without changing the underlying sources', () => {
+test('fixed-source match demo clamps manual offsets and resets independent audio controls', () => {
   const s = mountMatchDemo()
   assert.equal(s.relativeOffset.value,6.9)
-  s.selectMain(1); assert.equal(s.relativeOffset.value,3.7)
-  assert.equal(s.offsetText.value,'+3.7 秒')
-  s.selectMain(2); assert.notEqual(s.secondary.value,s.main.value)
-  s.setSecondary(2); assert.notEqual(s.secondary.value,s.main.value)
-  const baseline = s.offsets.value[s.main.value]
-  s.setOffset(-2.4); assert.equal(s.relativeOffset.value,-2.4); assert.equal(s.offsets.value[s.main.value],baseline)
+  s.setOffset(-2.4); assert.equal(s.offsetText.value,'-2.4 秒')
   s.setOffset(100); assert.equal(s.relativeOffset.value,10)
   s.setOffset(-100); assert.equal(s.relativeOffset.value,-10)
-  s.setOffset(0); assert.equal(s.relativeOffset.value,0)
-  s.selectMain(99); assert.equal(s.main.value,2)
-})
-
-test('interactive sound and comments are independent and resetting restores the entire demo', () => {
-  const s = mountMatchDemo()
   for (let i=0;i<4;i++) { s.selectStep(i); assert.equal(s.active.value,i) }
   s.selectStep(99); assert.equal(s.active.value,3)
   s.setVolume(0,200); assert.equal(s.volumes.value[0],100); assert.equal(s.volumes.value[2],42)
   s.setVolume(2,-10); assert.equal(s.volumes.value[2],0)
   s.toggleMute(0); assert.equal(s.muted.value[0],true); assert.equal(s.muted.value[2],false)
-  s.toggleMerged(); assert.equal(s.merged.value,false)
-  s.selectMain(1); s.setOffset(2.5); s.reset()
-  assert.equal(s.main.value,0); assert.equal(s.secondary.value,2); assert.equal(s.relativeOffset.value,6.9)
-  assert.deepEqual(Array.from(s.volumes.value),[40,0,42]); assert.deepEqual(Array.from(s.muted.value),[false,true,false]); assert.equal(s.merged.value,true)
+  s.reset(); assert.equal(s.relativeOffset.value,6.9)
+  assert.deepEqual(Array.from(s.volumes.value),[40,0,42]); assert.deepEqual(Array.from(s.muted.value),[false,true,false])
 })
 
-test('the screenshot-based match demo exposes real controls without fetching recordings or implying real synchronization', () => {
+test('match preview preserves original screenshot comments and offers no alternative source selection', () => {
   const home = readFileSync(resolve(dist,'index.html'),'utf8')
   const panel = home.split('id="plugin-demo"')[1].split('plugin-compatibility')[0]
   assert.ok(panel.includes('previews/match-sync.webp'))
   for (const title of ['选择主画面','偏移微调','混合声音','合并弹幕']) assert.ok(panel.includes('查看' + title + '交互'))
-  assert.ok(!panel.includes('<video')); assert.ok(!panel.includes('.mp4'))
+  for (const removed of ['<video','.mp4','type="radio"','<select','main-source-badge','match-comments','这波配合漂亮']) assert.ok(!panel.includes(removed),removed)
   assert.ok(panel.includes('不连接直播、不执行真实同步或播放声音'))
-  assert.ok(panel.includes('type="radio"'))
   const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
-  for (const type of ['type="radio"','type="range"','aria-pressed','role="status"']) assert.ok(source.includes(type))
+  assert.ok(source.includes('真实合并弹幕'))
+  for (const type of ['type="range"','aria-pressed','role="status"']) assert.ok(source.includes(type))
   assert.ok(!source.includes('setInterval')); assert.ok(!source.includes('requestAnimationFrame'))
   assert.ok(source.includes('.match-workspace { grid-template-columns:1fr;'))
 })
 
- test('switching the main source keeps the offset slider consistent with preserved source timing', () => {
-  const s = mountMatchDemo()
-  s.setOffset(10); s.setSecondary(1); s.setOffset(-10)
-  s.selectMain(1); s.setSecondary(2)
-  assert.equal(s.relativeOffset.value,20)
-  assert.equal(s.offsetMax.value,20)
-  s.setOffset(19.9); assert.equal(s.relativeOffset.value,19.9)
-  s.setOffset(0); assert.equal(s.offsetMax.value,10)
+test('confirmed domestic identities include six local cached avatars and overseas cell two is corrected', () => {
+  const cells = platformPreviews.domestic_live.cells
+  assert.deepEqual(cells.map(c => c.name),['APEX-QQ','DF三明治3Mz','皮特174','老张zzzzzzzzZ','Jackyar','APEX-文轩WenXx'])
+  assert.deepEqual(cells.map(c => c.platform),['抖音','斗鱼','B站','斗鱼','斗鱼','抖音'])
+  for (const c of cells) assert.ok(existsSync(resolve(root,'docs/public/previews/avatars/' + c.avatar)))
+  assert.equal(platformPreviews.global_live.cells[1].name,'波風水雞')
+  assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
 })

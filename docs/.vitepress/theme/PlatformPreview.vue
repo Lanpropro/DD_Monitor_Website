@@ -28,7 +28,7 @@ const rectStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rect[2
       </div>
       <svg class="platform-leaders" viewBox="0 0 1400 780" fill="none" aria-hidden="true"><polyline :points="line(active)" /><circle :cx="anchor(active).x" :cy="anchor(active).y" r="5" /></svg>
       <button v-for="(cell,i) in preview.cells" :key="i" class="platform-callout" :style="{ top:labelTop(i) + '%' }" :aria-pressed="active === i" @click="select(i)">
-        <span class="callout-number">{{ String(i + 1).padStart(2,'0') }}</span><span class="callout-text"><strong>{{ cell.name }}</strong><span><img v-if="cell.icon" :src="withBase('/platforms/' + cell.icon)" alt="" />{{ cell.platform || '平台待确认' }}</span></span>
+        <img v-if="cell.avatar" class="callout-avatar" :src="withBase('/previews/avatars/' + cell.avatar)" alt="" width="32" height="32" loading="lazy" /><span class="callout-number">{{ String(i + 1).padStart(2,'0') }}</span><span class="callout-text"><strong>{{ cell.name }}</strong><span><img v-if="cell.icon" :src="withBase('/platforms/' + cell.icon)" alt="" />{{ cell.platform || '平台待确认' }}</span></span>
       </button>
     </div>
     <figcaption>{{ preview.note }}</figcaption>
@@ -48,6 +48,7 @@ const rectStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rect[2
 .platform-leaders circle { fill:currentColor; }
 .platform-callout { position:absolute; left:77%; width:23%; display:flex; align-items:center; gap:10px; transform:translateY(-50%); padding:7px 10px; border:1px solid var(--vp-c-divider); border-radius:9px; color:var(--vp-c-text-2); background:var(--vp-c-bg-soft); text-align:left; }
 .platform-callout[aria-pressed=true] { border-color:var(--vp-c-brand-1); color:var(--vp-c-text-1); background:var(--vp-c-brand-soft); }
+.callout-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; flex-shrink:0; }
 .callout-number { font-size:11px; color:var(--vp-c-brand-1); font-variant-numeric:tabular-nums; }
 .callout-text { min-width:0; }
 .callout-text strong { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:12px; font-weight:500; }
