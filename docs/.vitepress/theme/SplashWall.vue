@@ -33,7 +33,9 @@ const wall = ref(null)
 const offset = reactive({ x: 0, y: 0 })
 const columns = ref(14)
 const imageTiles = ref(buildImageTiles(14))
-const requestedImages = ref(new Set()), readyImages = ref(new Set()), fullImages = ref(new Set())
+// 首屏中心5×5直接输出图片地址，让浏览器在JS执行前就开始加载。
+const FIRST_IMAGES = new Set(IMAGE_ORDER.slice(0,25))
+const requestedImages = ref(new Set(FIRST_IMAGES)), fullImages = ref(new Set())
 let imageObserver
 let tileNodes = []
 function imageSource(n) {
@@ -42,9 +44,11 @@ function imageSource(n) {
   const folder = fullImages.value.has(id) ? '' : 'thumbs/'
   return `${base}wall/${folder}${String(id).padStart(2,'0')}.webp`
 }
-function tileStyle(n) {
-  const id = tileImage(n) - 1
-  return { '--i':(n - 1) % 14, backgroundImage:`url(${base}wall/preview.webp)`, backgroundPosition:`${id % 7 / 6 * 100}% ${Math.floor(id / 7) / 7 * 100}%` }
+function imageSourceSet(n) {
+  const id = tileImage(n)
+  if (!requestedImages.value.has(id) || fullImages.value.has(id)) return undefined
+  const file = String(id).padStart(2,'0') + '.webp'
+  return `${base}wall/thumbs/${file} 640w, ${base}wall/${file} 1280w`
 }
 function requestImage(id,full = false) {
   if (!id) return
@@ -62,11 +66,6 @@ function observeImages() {
   } else {
     imageTiles.value.forEach(id => requestImage(id))
   }
-}
-function markReady(id) { readyImages.value.add(id) }
-function markFailed(id) {
-  readyImages.value.delete(id)
-  fullImages.value.delete(id)
 }
 let period = { x: 0, y: 0 }
 let centerShift = { x: 0, y: 0 }
@@ -320,9 +319,10 @@ onUnmounted(() => {
     @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp"
     @pointercancel="onPointerUp" @pointerleave="onPointerLeave">
     <div ref="wall" class="splash-wall">
-      <span v-for="n in TILE_COUNT * REPEATS" :key="n" class="splash-tile" :data-image="tileImage(n)" :style="tileStyle(n)">
+      <span v-for="n in TILE_COUNT * REPEATS" :key="n" class="splash-tile" :data-image="tileImage(n)" :style="{ '--i':(n - 1) % 14 }">
         <img v-if="tileImage(n)" :data-source="`${base}wall/${String(tileImage(n)).padStart(2, '0')}.webp`"
-          :src="imageSource(n)" :class="{ 'is-ready':readyImages.has(tileImage(n)) }" @load="markReady(tileImage(n))" @error="markFailed(tileImage(n))"
+          :src="imageSource(n)" :srcset="imageSourceSet(n)" sizes="(max-width: 700px) 304px, (max-width: 730px) 170px, 24vw"
+          :fetchpriority="IMAGE_ORDER.slice(0,9).includes(tileImage(n)) ? 'high' : 'auto'"
           alt="" width="1280" height="720" decoding="async" draggable="false" />
       </span>
     </div>
@@ -362,7 +362,6 @@ onUnmounted(() => {
   border-radius: 10px;
   border: 1px solid var(--vp-c-divider);
   background-color: var(--vp-c-bg-alt);
-  background-size: 700% 800%;
   box-shadow: inset 0 1px 0 #ffffff10;
   transform-origin: 50% 50%;
   transition: transform 110ms var(--ease-out), border-color 160ms ease, box-shadow 160ms ease;
@@ -372,15 +371,12 @@ onUnmounted(() => {
   animation-delay: calc(var(--i) * 55ms);
 }
 .splash-tile img {
-  opacity: 0;
-  transition: opacity 180ms var(--ease-out);
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   pointer-events: none;
 }
-.splash-tile img.is-ready { opacity:1; }
 @keyframes tile-rise {
   from { opacity: 0; translate: 0 26px; }
   to { opacity: 1; translate: 0 0; }
@@ -414,7 +410,7 @@ onUnmounted(() => {
   .hint-copy { gap: 5px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .splash-tile, .splash-tile img { animation: none; transition: none; }
+  .splash-tile { animation: none; transition: none; }
   .splash-hint, .hint-copy { animation: none; }
 }
 </style>
