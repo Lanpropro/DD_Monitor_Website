@@ -20,6 +20,8 @@ npm run dev
 
 ## 修改内容
 
+首页插件区和插件目录页共用 `PluginSubmission.vue`，链接到插件仓库的投稿 Issue 表单。网站不增加账号、鉴权或审核状态展示。首次部署入口前，应先确认插件仓库默认分支已启用 `plugin-submission.yml` 表单与工作流；详见[投稿流程](https://github.com/Lanpropro/DD_Monitor_Plugins/blob/main/SUBMISSIONS.md)。本轮不自动同步社区索引到展示卡片，也不部署网站。
+
 - 首页：`docs/.vitepress/theme/HomePage.vue`
 - 主播名称：`docs/.vitepress/theme/FeatureDemo.vue` 的 `cards` 数组
 - 插件卡片文案与下载信息：`docs/data/plugins.json`
