@@ -28,6 +28,11 @@ function reset() {
   relativeOffset.value = 6.9; volumes.value = [40,0,42]; muted.value = [false,true,false]
   status.value = '已恢复初始演示设置。'
 }
+const focusedStep = computed(() => steps[active.value])
+const detailStyle = computed(() => {
+  const [x,y,w,h] = focusedStep.value.rect
+  return { width:10000 / w + '%', height:10000 / h + '%', left:-x / w * 100 + '%', top:-y / h * 100 + '%' }
+})
 const hotspotStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rect[2] + '%', height:rect[3] + '%' })
 </script>
 
@@ -37,11 +42,13 @@ const hotspotStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rec
     <div class="match-workspace">
       <div class="match-capture" data-reveal>
         <img class="sync-software" :src="withBase('/previews/match-sync.webp')" alt="比赛二路同步软件截图，主画面、对照、音量和弹幕区域可点选" width="1920" height="1080" loading="lazy" />
+        <div class="match-spotlight" :style="hotspotStyle(focusedStep.rect)" aria-hidden="true"></div>
         <button v-for="(step,i) in steps" :key="step.title" class="match-hotspot" :style="hotspotStyle(step.rect)" :aria-label="'查看' + step.title + '交互'" :aria-pressed="active === i" @click="selectStep(i)"><span>{{ String(i + 1).padStart(2,'0') }} {{ step.title }}</span></button>
         <svg class="match-leader" viewBox="0 0 100 56.25" fill="none" aria-hidden="true"><polyline :points="`${steps[active].anchor[0]},${steps[active].anchor[1] * .5625} 98,${steps[active].anchor[1] * .5625} 98,28 100,28`" /><circle :cx="steps[active].anchor[0]" :cy="steps[active].anchor[1] * .5625" r=".6" /></svg>
       </div>
       <div class="match-settings">
         <span class="match-step-label">0{{ active + 1 }} / 操作体验</span><h4>{{ steps[active].title }}</h4><p class="match-step-description">{{ steps[active].text }}</p>
+        <figure v-if="active === 1 || active === 2" class="match-detail"><div :style="{ aspectRatio:focusedStep.rect[2] * 16 / (focusedStep.rect[3] * 9) }"><img :src="withBase('/previews/match-sync.webp')" :style="detailStyle" :alt="focusedStep.title + '区域放大，取自同一张真实截图'" width="1920" height="1080" /></div><figcaption>{{ focusedStep.title }} · 区域放大</figcaption></figure>
         <p v-if="active === 0" class="fixed-source-note">以截图中的比赛主画面为基准，对照区域展示另一路直播。</p>
         <div v-else-if="active === 1" class="offset-settings"><label for="match-offset">相对主画面的偏移 <output>{{ offsetText }}</output></label><input id="match-offset" type="range" min="-10" max="10" step="0.1" :value="relativeOffset" @input="setOffset($event.target.value)" /><div class="offset-ticks"><span>−10 秒</span><span>0</span><span>＋10 秒</span></div><div class="offset-actions"><button aria-label="偏移减少0.1秒" @click="setOffset(relativeOffset - .1)">−0.1 秒</button><button @click="setOffset(0)">设为0秒</button><button aria-label="偏移增加0.1秒" @click="setOffset(relativeOffset + .1)">＋0.1 秒</button></div><p class="offset-help">正值延后，负值提前；仅展示手动偏移设置。</p></div>
         <div v-else-if="active === 2" class="sound-settings"><div v-for="(source,i) in sources" :key="source.name"><label :for="'match-volume-' + i">{{ source.name }}<output>{{ muted[i] ? '静音' : volumes[i] + '%' }}</output></label><div><button :aria-label="(muted[i] ? '取消静音' : '静音') + source.name" :aria-pressed="muted[i]" @click="toggleMute(i)">{{ muted[i] ? '取消静音' : '静音' }}</button><input :id="'match-volume-' + i" :aria-label="source.name + '模拟音量'" type="range" min="0" max="100" :value="volumes[i]" @input="setVolume(i,$event.target.value)" /></div></div></div>
@@ -61,9 +68,15 @@ const hotspotStyle = rect => ({ left:rect[0] + '%', top:rect[1] + '%', width:rec
 .match-workspace { display:grid; grid-template-columns:minmax(0,2.2fr) minmax(240px,1fr); align-items:center; gap:20px; }
 .match-capture { position:relative; min-width:0; aspect-ratio:16/9; border:1px solid var(--vp-c-divider); border-radius:10px; overflow:hidden; background:#101114; }
 .sync-software { display:block; width:100%; height:100%; object-fit:contain; }
+.match-spotlight { position:absolute; border:2px solid var(--vp-c-brand-1); border-radius:4px; box-shadow:0 0 0 2000px #050a12b3; pointer-events:none; }
+.match-detail { margin:0 0 18px; }
+.match-detail > div { position:relative; overflow:hidden; border:1px solid var(--vp-c-brand-1); border-radius:6px; background:#101114; }
+.match-detail img { position:absolute; max-width:none; }
+.match-detail figcaption { margin-top:5px; font-size:11px; color:var(--vp-c-text-2); }
 .match-hotspot { position:absolute; border:1px solid transparent; border-radius:4px; text-align:left; }
 .match-hotspot > span { position:absolute; top:3px; left:3px; padding:3px 5px; border-radius:4px; background:#101827ed; color:#eef1f8; font-size:clamp(6px,.75vw,10px); }
-.match-hotspot[aria-pressed=true] { border:2px solid var(--vp-c-brand-1); }
+.match-hotspot[aria-pressed=false] > span { visibility:hidden; }
+.match-hotspot:focus-visible { outline:2px solid var(--vp-c-brand-1); outline-offset:-2px; }
 .match-hotspot[aria-pressed=true] > span { color:var(--vp-c-brand-1); }
 .match-leader { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; color:var(--vp-c-brand-1); }
 .match-leader polyline { stroke:currentColor; stroke-width:1.5px; vector-effect:non-scaling-stroke; }

@@ -1055,7 +1055,7 @@ test('return button lands at the introduction with the wall behind it, never at 
 
 function mountMatchDemo() {
   const script = read('docs/.vitepress/theme/MatchSyncDemo.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
-  return runInNewContext(script + '\n;({ steps, active, volumes, muted, relativeOffset, offsetText, selectStep, setOffset, setVolume, toggleMute, reset })', {
+  return runInNewContext(script + '\n;({ steps, focusedStep, detailStyle, active, volumes, muted, relativeOffset, offsetText, selectStep, setOffset, setVolume, toggleMute, reset })', {
     computed:fn => ({ get value() { return fn() } }), ref:value => ({ value })
   })
 }
@@ -1096,4 +1096,24 @@ test('confirmed domestic identities include six local cached avatars and oversea
   for (const c of cells) assert.ok(existsSync(resolve(root,'docs/public/previews/avatars/' + c.avatar)))
   assert.equal(platformPreviews.global_live.cells[1].name,'波風水雞')
   assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
+})
+
+test('each match step focuses its own screenshot region and magnification preserves crop geometry', () => {
+  const s = mountMatchDemo()
+  for (let i=0;i<4;i++) {
+    s.selectStep(i)
+    assert.equal(s.focusedStep.value,s.steps[i])
+    const [x,y,w,h] = s.steps[i].rect
+    const crop = s.detailStyle.value
+    assert.equal(parseFloat(crop.width),10000 / w)
+    assert.equal(parseFloat(crop.height),10000 / h)
+    assert.equal(parseFloat(crop.left),-x / w * 100)
+    assert.equal(parseFloat(crop.top),-y / h * 100)
+  }
+  const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
+  assert.ok(source.includes('class="match-spotlight" :style="hotspotStyle(focusedStep.rect)" aria-hidden="true"'))
+  assert.match(source,/\.match-spotlight \{[^}]*pointer-events:none/)
+  assert.ok(source.includes('box-shadow:0 0 0 2000px'))
+  assert.ok(source.includes('v-if="active === 1 || active === 2" class="match-detail"'))
+  assert.ok(source.includes('visibility:hidden'))
 })
