@@ -10,7 +10,7 @@ const root = resolve(import.meta.dirname, '..')
 const read = path => readFileSync(resolve(root, path), 'utf8').replace(/\r\n/g, '\n')
 const plugins = JSON.parse(read('docs/data/plugins.json'))
 const dist = resolve(root, 'docs/.vitepress/dist')
-const base = '/DD_Monitor_Website/'
+const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 
 test('homepage uses the approved product name and viewing copy', () => {
   const source = read('docs/.vitepress/theme/HomePage.vue')
@@ -121,11 +121,11 @@ test('prototype palette and scroll entrances cover the page beyond the facts row
   const css = read('docs/.vitepress/theme/style.css')
   for (const token of ['--vp-c-bg: #f5f2ea', '--vp-c-bg: #070c16', '--vp-c-brand-1: #087a9e', '--vp-c-brand-1: #5cd6ff', '--button-primary-bg: #f5f2ea', '--button-radius: 999px']) assert.ok(css.includes(token), token)
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
-  for (const className of ['hero-copy', 'hero-intro', 'demo-selector', 'demo-preview', 'plugin-demo-heading', 'sync-screen', 'sync-timeline', 'bottom-actions']) {
+  for (const className of ['hero-copy', 'hero-intro', 'demo-selector', 'demo-preview', 'plugin-demo-heading', 'match-capture', 'match-step-tabs', 'bottom-actions']) {
     assert.ok(home.match(/<[^>]+>/g).some(tag => tag.includes('data-reveal') && new RegExp('class="' + className + '(?: [^"]*)?"').test(tag)), className + ' has its own scroll entrance')
   }
-  const timeline = read('docs/.vitepress/theme/MatchSyncTimeline.vue')
-  assert.ok(timeline.includes('--sync-accent:var(--vp-c-brand-1)'))
+  const timeline = read('docs/.vitepress/theme/MatchSyncDemo.vue')
+  assert.ok(timeline.includes('var(--vp-c-brand-1)'))
   assert.ok(!timeline.includes('#9881ff'))
 })
 
@@ -143,7 +143,7 @@ test('dark surfaces separate content from the page and software imagery stays at
   assert.ok(page < .01, 'the page keeps a near-black background')
   assert.ok((panel + .05) / (page + .05) > 1.15, 'panels remain distinct from the page')
   assert.equal(token('vp-c-divider'), 'rgba(255, 255, 255, .14)')
-  const imageRule = read('docs/.vitepress/theme/MatchSyncTimeline.vue').match(/\.sync-software \{([^}]+)\}/)[1]
+  const imageRule = read('docs/.vitepress/theme/MatchSyncDemo.vue').match(/\.sync-software \{([^}]+)\}/)[1]
   assert.ok(!/opacity\s*:|filter\s*:/.test(imageRule), 'the real software screenshot is not dimmed or desaturated')
 })
 
@@ -214,7 +214,7 @@ test('website screenshot derivatives remove only the native title bar', () => {
 
 test('homepage exposes software and every plugin download before JavaScript runs', () => {
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
-  assert.ok(home.includes('href="/DD_Monitor_Website/download"'))
+  assert.ok(home.includes(`href="${base}download"`))
   assert.ok(home.includes('id="plugins"'))
   assert.ok(home.includes('screenshots/landscape.webp'))
   assert.ok(!home.includes('查看完整截图'), 'the presentation should not show a redundant screenshot link')
@@ -226,7 +226,7 @@ test('homepage exposes software and every plugin download before JavaScript runs
   for (const plugin of plugins) {
     assert.ok(home.includes(plugin.download), `missing homepage download: ${plugin.id}`)
     assert.ok(home.includes(plugin.name), `missing homepage plugin: ${plugin.id}`)
-    assert.ok(home.includes(`/DD_Monitor_Website/plugins/${plugin.id}`))
+    assert.ok(home.includes(`${base}plugins/${plugin.id}`))
   }
 })
 
@@ -261,12 +261,12 @@ test('opening screen shows the recorded tiles in the placeholder wall before any
   assert.equal(wallTiles, 224, 'the wall repeats its 56 tiles twice per axis so it wraps without a seam')
   const splash = read('docs/.vitepress/theme/SplashWall.vue')
   assert.ok(!home.includes('splash-ring'), 'recordings must live in the wall rather than a separate overlay')
-  for (let index = 1; index <= 55; index++) {
+  for (let index = 1; index <= 56; index++) {
     const file = String(index).padStart(2, '0') + '.webp'
     assert.ok(existsSync(resolve(root, `docs/public/wall/${file}`)))
     assert.equal((wallContent.match(new RegExp(`${base}wall/${file}`, 'g')) || []).length, 4, `${file} must appear in all four repeated wall quadrants`)
   }
-  assert.equal((wallContent.match(/\/wall\/\d{2}\.webp/g) || []).length, 220, 'only the supplied recordings replace placeholders')
+  assert.equal((wallContent.match(/\/wall\/\d{2}\.webp/g) || []).length, 224, 'only the supplied recordings replace placeholders')
   assert.ok(home.includes('拖动查看'), 'the opening screen must say it can be dragged')
   assert.ok(home.indexOf('class="splash"') < home.indexOf('class="showcase"'), 'the wall comes before the page content')
 })
@@ -304,7 +304,7 @@ test('idle drift keeps the original compact orbit speed and amplitude', () => {
 
 test('supplied recordings spiral outward from the center without overlapping tiles', () => {
   const splash = read('docs/.vitepress/theme/SplashWall.vue')
-  const ring = splash.match(/const RING_OFFSETS = (\[[\s\S]*?\])\nconst /)?.[1]
+  const ring = splash.match(/const RING_OFFSETS = (\[[\s\S]*?\n\])/)?.[1]
   assert.ok(ring, 'missing the center-out tile order')
   assert.match(splash, /function buildImageTiles\(gridColumns\)/, 'recordings must be mapped onto the repeated wall')
   assert.match(splash, /for \(let quadrantRow = 0; quadrantRow < 2;/, 'the wall needs all four repeated quadrants')
@@ -318,15 +318,15 @@ test('supplied recordings spiral outward from the center without overlapping til
     'recordings 21–29 must continue around the upper and right edges of the existing spiral')
   assert.deepEqual(offsets.slice(29, 52), ['3,2', '3,3', '2,3', '1,3', '0,3', '-1,3', '-2,3', '-3,3', '-3,2', '-3,1', '-3,0', '-3,-1', '-3,-2', '-3,-3', '-2,-3', '-1,-3', '0,-3', '1,-3', '2,-3', '3,-3', '3,4', '2,4', '1,4'],
     'recordings 30–52 must fill the outer edge and available bottom row without moving earlier recordings')
-  assert.deepEqual(offsets.slice(52), ['0,4', '-1,4', '-2,4'], 'recordings 53–55 must continue along the remaining bottom row')
-  assert.equal(offsets.length, 55, 'every supplied recording needs one position')
+  assert.deepEqual(offsets.slice(52), ['0,4', '-1,4', '-2,4', '-3,4'], 'recordings 53–56 must continue along the remaining bottom row')
+  assert.equal(offsets.length, 56, 'every supplied recording needs one position')
   assert.equal(new Set(offsets).size, offsets.length, 'tile positions must not overlap')
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
   assert.ok(!home.includes('class="splash-ring"'), 'the recordings must not be rendered as a separate centered layer')
   assert.match(home, /class="splash-tile"[^>]*>\s*<img[^>]+wall\/01\.webp/, 'the first recording must render inside a wall tile')
 })
 
-test('all fifty-five recordings survive desktop and mobile wall repetition without overwriting each other', () => {
+test('all fifty-six recordings survive desktop and mobile wall repetition without overwriting each other', () => {
   const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm, '')
   const { buildImageTiles, wrap } = runInNewContext(script + '\n;({ buildImageTiles, wrap })', {
     ref: value => ({ value }), reactive: value => value, withBase: value => value,
@@ -337,8 +337,8 @@ test('all fifty-five recordings survive desktop and mobile wall repetition witho
   assert.equal(wrap(2501, 1000), -499, 'long drags must retain their phase across multiple periods')
   for (const columns of [14, 8]) {
     const tiles = buildImageTiles(columns)
-    assert.equal(tiles.size, 220, `${columns} columns must retain all four copies of all fifty-five recordings`)
-    for (let recording = 1; recording <= 55; recording++) {
+    assert.equal(tiles.size, 224, `${columns} columns must retain all four copies of all fifty-six recordings`)
+    for (let recording = 1; recording <= 56; recording++) {
       assert.equal([...tiles.values()].filter(value => value === recording).length, 4)
     }
     for (const tile of tiles.keys()) assert.ok(tile >= 1 && tile <= 224)
@@ -397,7 +397,7 @@ test('appearance miniature and editable controls remain usable before hydration'
     assert.equal(plugin.steps.length, 3)
     assert.equal(new Set(plugin.steps).size, 3)
   }
-  for (const chapter of ['对照画面','偏移微调','同步观看','合并弹幕']) assert.ok(home.includes(chapter))
+  for (const chapter of ['选择主画面','偏移微调','混合声音','合并弹幕']) assert.ok(home.includes(chapter))
 })
 
 test('every generated internal link, anchor and local asset resolves under the Pages base', () => {
@@ -796,7 +796,7 @@ test('viewing and plugin demos restore the pre-fusion presentation without layou
   assert.ok(!viewing.includes('layout-options'))
   assert.ok(viewing.includes('aria-controls="mini-layout-presets"'))
   assert.ok(viewing.includes(`aria-label="选择${mountMiniature().state.cards[0].name}"`))
-  assert.ok(home.includes('aria-label="二路同步演示时间轴"'))
+  assert.ok(home.includes('aria-label="二路演示进度"'))
   const css = read('docs/.vitepress/theme/style.css')
   assert.ok(!css.includes('max-width: 880px'))
   assert.ok(css.includes('.plugin-demo-panel { display:block;'))
@@ -967,11 +967,11 @@ test('plugin cards expose full-card selection and render concrete feature detail
     assert.ok(p.features.length > 0)
     assert.ok(home.includes('aria-label="查看' + p.name + '的具体功能"'))
   }
-  assert.ok(panel.includes('比赛二路同步实录预览'))
+  assert.ok(panel.includes('比赛二路同步自动演示'))
   assert.ok(panel.includes('match-sync-demo'))
-  assert.ok(panel.includes('aria-label="二路同步演示时间轴"'))
+  assert.ok(panel.includes('aria-label="二路演示进度"'))
   assert.ok(panel.includes('videos/match-sync-recording.mp4'))
-  assert.ok(panel.includes('跳转到合并弹幕'))
+  assert.ok(panel.includes('合并弹幕'))
   assert.ok(!home.includes('已选中 · 功能在下方'))
   assert.ok(!home.includes('点击查看具体功能'))
   const selected = home.match(/<article class="[^"]*is-selected[^"]*"[\s\S]*?<\/article>/g)
@@ -989,49 +989,38 @@ test('plugin carousel initially shows the selected match-sync card', () => {
   page.unmount()
 })
 
-function mountPluginRecording({ plugin = plugins[0], intersection = true } = {}) {
-  let mount, unmount, notify, disconnected = false, refs = 0
-  const listeners = new Map()
-  const video = { paused:false, pause() { this.paused = true } }
-  const doc = { hidden:false, addEventListener:(name,fn) => listeners.set(name,fn), removeEventListener:name => listeners.delete(name) }
-  class Observer { constructor(fn) { notify = fn } observe() {} disconnect() { disconnected = true } }
-  const script = read('docs/.vitepress/theme/PluginRecording.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm, '')
-  const state = runInNewContext(script + '\n;({ recording })', {
-    defineProps:() => ({ plugin }), computed:fn => ({ get value() { return fn() } }), ref:value => ({ value:value === null ? refs++ === 0 ? {} : video : value }),
-    onMounted:fn => { mount = fn }, onUnmounted:fn => { unmount = fn }, window:intersection ? { IntersectionObserver:Observer } : {}, document:doc, IntersectionObserver:Observer
+const platformPreviews = JSON.parse(read('docs/data/platform-previews.json'))
+function mountPlatformPreview(plugin) {
+  const script = read('docs/.vitepress/theme/PlatformPreview.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
+  return runInNewContext(script + '\n;({ active, preview, select, anchor, line })', {
+    previews:platformPreviews, defineProps:() => ({ plugin }), computed:fn => ({ get value() { return fn() } }), ref:value => ({ value })
   })
-  mount()
-  return { state, video, doc, listeners, unmount, visible(value) { notify?.([{ isIntersecting:value }]) }, get disconnected() { return disconnected } }
 }
 
-test('platform recordings use the corresponding local footage and replace simulated feature displays', () => {
-  for (const [plugin,file] of [[plugins[0],'domestic-live'],[plugins[1],'global-live']]) {
-    const page = mountPluginRecording({ plugin })
-    assert.equal(page.state.recording.value.file,file)
-    const bytes = readFileSync(resolve(root, `docs/public/videos/${file}-recording.mp4`))
-    assert.equal(bytes.toString('ascii',4,8),'ftyp')
-    assert.ok(bytes.indexOf(Buffer.from('moov')) < bytes.indexOf(Buffer.from('mdat')))
-    assert.ok(bytes.length < 25 * 1024 * 1024)
-    assert.ok(existsSync(resolve(root, `docs/public/videos/${file}-poster.webp`)))
-    page.unmount()
+test('every platform screenshot region has a selectable numbered label and a matching leader endpoint', () => {
+  for (const [plugin,count] of [[plugins[0],6],[plugins[1],9]]) {
+    const s = mountPlatformPreview(plugin)
+    assert.equal(s.preview.value.cells.length,count)
+    assert.ok(existsSync(resolve(root,'docs/public/previews/' + s.preview.value.image)))
+    for (let i = 0; i < count; i++) {
+      const [x,y,w,h] = s.preview.value.cells[i].rect
+      assert.ok(x >= 0 && y >= 0 && w > 0 && h > 0 && x + w <= 100 && y + h <= 100)
+      s.select(i); assert.equal(s.active.value,i)
+      assert.ok(s.line(i).startsWith(`${s.anchor(i).x},${s.anchor(i).y}`))
+      if (s.preview.value.cells[i].icon) assert.ok(existsSync(resolve(root,'docs/public/platforms/' + s.preview.value.cells[i].icon)))
+    }
+    s.select(99); assert.equal(s.active.value,count - 1)
   }
-  const source = read('docs/.vitepress/theme/PluginRecording.vue'), home = read('docs/.vitepress/theme/HomePage.vue')
-  assert.match(source, /controls muted playsinline preload="none"/)
-  assert.ok(!source.includes('autoplay'))
-  assert.ok(!home.includes('PluginFeatureMotion')); assert.ok(!home.includes('plugin-flow'))
-  assert.ok(home.includes('<PluginRecording v-else :key="plugins[previewPlugin].id"'))
-  assert.ok(source.includes('各格取自不同时间段'))
 })
 
-test('recordings pause offscreen, in the background and when switching plugins', () => {
-  const page = mountPluginRecording()
-  page.visible(true); assert.equal(page.video.paused,false)
-  page.visible(false); assert.equal(page.video.paused,true)
-  page.video.paused = false; page.doc.hidden = true; page.listeners.get('visibilitychange')(); assert.equal(page.video.paused,true)
-  page.doc.hidden = false; page.listeners.get('visibilitychange')(); assert.equal(page.video.paused,true, 'returning must preserve a paused recording')
-  page.video.paused = false; page.unmount(); assert.equal(page.video.paused,true); assert.ok(page.disconnected); assert.equal(page.listeners.size,0)
-  const fallback = mountPluginRecording({ intersection:false })
-  fallback.doc.hidden = true; fallback.listeners.get('visibilitychange')(); assert.equal(fallback.video.paused,true); fallback.unmount()
+test('platform previews preserve unconfirmed identities and load screenshots instead of videos', () => {
+  const source = read('docs/.vitepress/theme/PlatformPreview.vue'), home = read('docs/.vitepress/theme/HomePage.vue')
+  assert.ok(source.includes("cell.platform || '平台待确认'"))
+  assert.ok(source.includes('class="platform-leaders"'))
+  assert.ok(!source.includes('<video')); assert.ok(!source.includes('requestAnimationFrame'))
+  assert.ok(home.includes('<PlatformPreview v-else :key="plugins[previewPlugin].id"'))
+  assert.ok(!home.includes('PluginRecording'))
+  assert.ok(source.includes('grid-template-columns:repeat(2,minmax(0,1fr))'))
 })
 
 
@@ -1064,81 +1053,109 @@ test('return button lands at the introduction with the wall behind it, never at 
 })
 
 
-function mountMatchTimeline({ reduced = false, intersection = true, ready = true } = {}) {
+const { MATCH_DURATION, matchTourFrame } = await import('../docs/.vitepress/theme/match-tour.mjs')
+function mountMatchDemo({ reduced = false, observerSupported = true, rejectPlay = false } = {}) {
+  const script = read('docs/.vitepress/theme/MatchSyncDemo.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
+  let mount, unmount, observe, motionChange
   const listeners = new Map()
-  let mount, unmount, notify, refs = 0, disconnected = false, loads = 0
-  const video = { currentTime:0, readyState:ready ? 1 : 0, paused:true, play() { this.paused = false; return Promise.resolve() }, pause() { this.paused = true }, load() { loads++ } }
-  const media = { matches:reduced, addEventListener:(name,fn) => listeners.set('media:' + name,fn), removeEventListener:name => listeners.delete('media:' + name) }
+  const motion = { matches:reduced, addEventListener:(_,fn) => { motionChange = fn }, removeEventListener:() => { motionChange = null } }
   const doc = { hidden:false, addEventListener:(name,fn) => listeners.set(name,fn), removeEventListener:name => listeners.delete(name) }
-  class Observer { constructor(fn) { notify = fn } observe() {} disconnect() { disconnected = true } }
-  const script = read('docs/.vitepress/theme/MatchSyncTimeline.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm, '')
-  const state = runInNewContext(script + '\n;({ chapters, duration, time, active, paused, reduced, playing, clock, sync, seek, jump, togglePlayback, hold, onFocus, onBlur, onLoaded, onTimeUpdate, onEnded })', {
-    computed:fn => ({ get value() { return fn() } }), ref:value => ({ value:value === null ? refs++ === 0 ? {} : video : value }),
-    onMounted:fn => { mount = fn }, onUnmounted:fn => { unmount = fn }, window:{ matchMedia:() => media, ...(intersection ? { IntersectionObserver:Observer } : {}) }, document:doc, IntersectionObserver:Observer
-  })
-  mount()
-  return { state, video, listeners, media, doc, unmount, visible(value) { notify?.([{ isIntersecting:value }]) }, get loads() { return loads }, get disconnected() { return disconnected } }
+  const player = { currentTime:0, paused:true, muted:false, plays:0, pauses:0,
+    play() { this.plays++; this.paused = false; return rejectPlay ? Promise.reject(new Error('autoplay blocked')) : Promise.resolve() },
+    pause() { this.pauses++; this.paused = true } }
+  const context = { MATCH_DURATION, matchTourFrame, computed:fn => ({ get value() { return fn() } }), ref:value => ({ value }),
+    onMounted:fn => { mount = fn }, onUnmounted:fn => { unmount = fn }, document:doc, window:{ matchMedia:() => motion } }
+  if (observerSupported) context.IntersectionObserver = class { constructor(fn) { observe = fn } observe() {} disconnect() { observe = null } }
+  const state = runInNewContext(script + '\n;({ steps, active, video, time, frame, focusedStep, reduced, blocked, readTime, sync })', context)
+  state.video.value = player; mount()
+  return { state, player, doc, listeners, unmount,
+    visibility(value) { observe([{ isIntersecting:value }]) },
+    motion(value) { motion.matches = value; motionChange() } }
 }
 
-test('the recorded match timeline seeks the actual video and restores pending seeks after metadata', () => {
-  const page = mountMatchTimeline(), s = page.state
-  assert.equal(s.duration,28); assert.equal(s.chapters.length,4)
-  for (const [time,index] of [[0,0],[5.9,0],[6,1],[15.9,1],[16,2],[22.9,2],[23,3],[28,3]]) {
-    s.seek(time); assert.equal(s.active.value,index); assert.equal(page.video.currentTime,time)
+test('video annotation chapters follow the existing 28-second recording boundaries', () => {
+  assert.equal(MATCH_DURATION,28000)
+  for (const [time,active] of [[0,0],[5999,0],[6000,1],[15999,1],[16000,2],[22999,2],[23000,3],[28000,3]]) {
+    const frame = matchTourFrame(time)
+    assert.equal(frame.active,active); assert.ok(frame.progress >= 0 && frame.progress <= 1)
   }
-  s.seek(-100); assert.equal(s.time.value,0)
-  s.seek(100); assert.equal(s.time.value,28)
-  s.jump(2); assert.equal(s.time.value,16); assert.equal(page.video.currentTime,16)
-  s.jump(99); assert.equal(s.time.value,16)
-  page.video.currentTime = 17.25; s.onTimeUpdate(); assert.equal(s.time.value,17.25)
-  assert.equal(s.clock(28),'0:28')
-  page.unmount()
-  const pending = mountMatchTimeline({ ready:false })
-  pending.state.seek(10); assert.equal(pending.loads,1); assert.equal(pending.video.currentTime,0)
-  pending.video.readyState = 1; pending.state.onLoaded(); assert.equal(pending.video.currentTime,10)
-  pending.unmount()
+  assert.equal(matchTourFrame(-100).active,0)
 })
 
-test('native video playback pauses offscreen, during seeking, on focus and in the background', () => {
-  const page = mountMatchTimeline(), s = page.state
-  assert.equal(page.video.paused,true); page.visible(true); assert.equal(page.video.paused,false)
-  s.hold(true); assert.equal(page.video.paused,true); s.seek(10.5); assert.equal(page.video.currentTime,10.5)
-  s.hold(false); assert.equal(page.video.paused,false)
-  s.onFocus({ target:{ matches:() => true } }); assert.equal(page.video.paused,true)
-  s.onBlur({ currentTarget:{ contains:() => false } }); assert.equal(page.video.paused,false)
-  s.togglePlayback(); assert.equal(page.video.paused,true)
-  s.seek(28); s.togglePlayback(); assert.equal(s.time.value,0); assert.equal(page.video.currentTime,0)
-  page.video.currentTime = 28; s.onEnded(); assert.equal(page.video.currentTime,0); assert.equal(page.video.paused,false)
-  page.doc.hidden = true; page.listeners.get('visibilitychange')(); assert.equal(page.video.paused,true)
-  page.doc.hidden = false; s.sync(); assert.equal(page.video.paused,false)
-  page.visible(false); assert.equal(page.video.paused,true)
-  page.visible(true); page.media.matches = true; page.listeners.get('media:change')(); assert.equal(page.video.paused,true)
-  page.unmount(); assert.equal(page.video.paused,true); assert.equal(page.listeners.size,0); assert.ok(page.disconnected)
-})
-
-test('reduced motion and missing observers preserve manual video chapter navigation', () => {
-  for (const options of [{ reduced:true }, { intersection:false }]) {
-    const page = mountMatchTimeline(options), s = page.state
-    page.visible(true); assert.equal(page.video.paused,true)
-    s.jump(3); assert.equal(s.time.value,23); assert.equal(s.active.value,3); assert.equal(page.video.currentTime,23)
-    s.seek(9); assert.equal(s.active.value,1)
-    if (options.reduced) { s.togglePlayback(); assert.equal(page.video.paused,true) }
-    else { s.togglePlayback(); assert.equal(page.video.paused,false) }
-    page.unmount()
+test('annotations use media time for playback, seeking and looping instead of a separate clock', () => {
+  const p = mountMatchDemo(), s = p.state
+  for (const [seconds,active] of [[0,0],[7,1],[17,2],[24,3],[0,0]]) {
+    p.player.currentTime = seconds; s.readTime()
+    assert.equal(s.time.value,seconds * 1000); assert.equal(s.active.value,active)
+    assert.equal(s.focusedStep.value,s.steps[active])
   }
+  const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
+  assert.ok(source.includes('@timeupdate="readTime"')); assert.ok(source.includes('@seeking="readTime"'))
+  assert.ok(!source.includes('requestAnimationFrame')); assert.ok(!source.includes('setInterval'))
+  p.unmount()
 })
 
-test('the match preview contains real local video, matching chapters and no fabricated control overlays', () => {
+test('recording pauses offscreen, in background and for reduced motion and guards pending playback', async () => {
+  const p = mountMatchDemo()
+  assert.equal(p.player.plays,0)
+  p.visibility(true); await Promise.resolve(); assert.equal(p.player.paused,false); assert.equal(p.player.muted,true)
+  p.visibility(false); assert.equal(p.player.paused,true)
+  p.visibility(true); p.doc.hidden = true; p.listeners.get('visibilitychange')()
+  await Promise.resolve(); assert.equal(p.player.paused,true)
+  p.doc.hidden = false; p.listeners.get('visibilitychange')(); await Promise.resolve(); assert.equal(p.player.paused,false)
+  p.motion(true); assert.equal(p.player.paused,true)
+  p.motion(false); p.unmount(); await Promise.resolve(); assert.equal(p.player.paused,true); assert.equal(p.listeners.size,0)
+  const reduced = mountMatchDemo({ reduced:true }); reduced.visibility(true); assert.equal(reduced.player.plays,0); reduced.unmount()
+  const fallback = mountMatchDemo({ observerSupported:false }); await Promise.resolve(); assert.equal(fallback.player.paused,false); fallback.unmount()
+  const blocked = mountMatchDemo({ rejectPlay:true }); blocked.visibility(true); await Promise.resolve(); await Promise.resolve(); assert.equal(blocked.state.blocked.value,true); blocked.unmount()
+})
+
+test('passive match preview combines real recording and overlay without simulated controls or screenshot stand-ins', () => {
   const home = readFileSync(resolve(dist,'index.html'),'utf8')
-  for (const label of ['对照画面','偏移微调','同步观看','合并弹幕']) assert.ok(home.includes('aria-label="跳转到' + label + '"'))
-  assert.match(home, /class="timeline-seek"[^>]*type="range"[^>]*max="28"/)
-  assert.match(home, /<video[^>]*match-sync-recording\.mp4[^>]*muted[^>]*playsinline[^>]*preload="none"/)
-  assert.ok(home.includes('match-sync-poster.webp'))
-  assert.ok(!home.includes('aria-label="设为比赛主画面"'))
-  assert.ok(!home.includes('主画面模拟音量'))
-  assert.ok(home.includes('真实软件录屏 · 手动微调 · 静音播放'))
-  const recording = readFileSync(resolve(root,'docs/public/videos/match-sync-recording.mp4'))
-  assert.equal(recording.toString('ascii',4,8),'ftyp')
-  assert.ok(recording.indexOf(Buffer.from('moov')) < recording.indexOf(Buffer.from('mdat')), 'the web video supports faststart')
-  assert.ok(recording.length < 20 * 1024 * 1024)
+  const panel = home.split('id="plugin-demo"')[1].split('plugin-compatibility')[0]
+  for (const item of ['<video','videos/match-sync-recording.mp4','class="match-spotlight"','二路演示进度']) assert.ok(panel.includes(item),item)
+  for (const removed of ['<button','<input','<select','previews/match-sync.webp','match-detail','match-cursor','match-comments']) assert.ok(!panel.includes(removed),removed)
+  const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
+  assert.ok(!source.includes('@click')); assert.ok(!source.includes('@input'))
+  assert.ok(source.includes('muted loop playsinline')); assert.ok(!source.includes(' controls'))
+  assert.ok(source.includes('prefers-reduced-motion')); assert.ok(source.includes('aria-current='))
+})
+
+test('confirmed domestic identities include six local cached avatars and overseas cell two is corrected', () => {
+  const cells = platformPreviews.domestic_live.cells
+  assert.deepEqual(cells.map(c => c.name),['APEX-QQ','DF三明治3Mz','皮特174','老张zzzzzzzzZ','Jackyar','APEX-文轩WenXx'])
+  assert.deepEqual(cells.map(c => c.platform),['抖音','斗鱼','B站','斗鱼','斗鱼','抖音'])
+  for (const c of cells) assert.ok(existsSync(resolve(root,'docs/public/previews/avatars/' + c.avatar)))
+  assert.equal(platformPreviews.global_live.cells[1].name,'波風水雞')
+  assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
+})
+
+test('wall position exchanges apply in the requested sequence while position 56 receives the final supplied recording', () => {
+  const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
+  const { IMAGE_ORDER, buildImageTiles } = runInNewContext(script + '\n;({ IMAGE_ORDER, buildImageTiles })', {
+    withBase:value => value, ref:value => ({ value }), reactive:value => value, onMounted() {}, onUnmounted() {}
+  })
+  const expected = new Map([[20,6],[6,20],[52,7],[7,52],[42,22],[22,42],[19,9],[9,19],[8,53],[23,8],[53,23],[15,17],[17,15]])
+  for (let position=1;position<=56;position++) assert.equal(IMAGE_ORDER[position - 1],expected.get(position) ?? position,`position ${position}`)
+  assert.equal(IMAGE_ORDER.length,56); assert.equal(new Set(IMAGE_ORDER).size,56)
+  assert.ok(existsSync(resolve(root,'docs/public/wall/56.webp')))
+  for (const columns of [14,8]) {
+    const tiles = buildImageTiles(columns)
+    assert.equal(tiles.size,224)
+    assert.equal([...tiles.values()].filter(image => image === 56).length,4)
+  }
+})
+
+test('overseas preview omits the removed explanatory caption without leaving an empty caption', () => {
+  assert.equal(platformPreviews.global_live.note,'')
+  const source = read('docs/.vitepress/theme/PlatformPreview.vue')
+  assert.ok(source.includes('<figcaption v-if="preview.note">'))
+  assert.ok(!JSON.stringify(platformPreviews).includes('九格取自宣传片剪辑'))
+})
+
+test('final viewing copy retains the concise tip and removes the match footer note', () => {
+  const viewing = read('docs/.vitepress/theme/FeatureDemo.vue')
+  assert.ok(viewing.includes('看光标演示，也可以亲手试试。</p>'))
+  assert.ok(!viewing.includes('预览只演示操作，不播放直播声音。'))
+  assert.ok(!read('docs/.vitepress/theme/MatchSyncDemo.vue').includes('match-demo-note'))
 })

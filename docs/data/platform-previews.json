@@ -1,0 +1,185 @@
+{
+  "domestic_live": {
+    "image": "domestic-live.webp",
+    "note": "点击画面或右侧标注，查看平台对应关系。",
+    "cells": [
+      {
+        "name": "APEX-QQ",
+        "platform": "抖音",
+        "icon": "douyin.ico",
+        "rect": [
+          10.3,
+          1.3,
+          59.2,
+          63.7
+        ],
+        "avatar": "domestic-1.webp"
+      },
+      {
+        "name": "DF三明治3Mz",
+        "platform": "斗鱼",
+        "icon": "douyu.ico",
+        "rect": [
+          70,
+          1.3,
+          29.3,
+          31.4
+        ],
+        "avatar": "domestic-2.webp"
+      },
+      {
+        "name": "皮特174",
+        "platform": "B站",
+        "icon": "bilibili.ico",
+        "rect": [
+          70,
+          33.3,
+          29.3,
+          31.4
+        ],
+        "avatar": "domestic-3.webp"
+      },
+      {
+        "name": "老张zzzzzzzzZ",
+        "platform": "斗鱼",
+        "icon": "douyu.ico",
+        "rect": [
+          10.3,
+          65.7,
+          29.2,
+          31.5
+        ],
+        "avatar": "domestic-4.webp"
+      },
+      {
+        "name": "Jackyar",
+        "platform": "斗鱼",
+        "icon": "douyu.ico",
+        "rect": [
+          40.2,
+          65.7,
+          29.2,
+          31.5
+        ],
+        "avatar": "domestic-5.webp"
+      },
+      {
+        "name": "APEX-文轩WenXx",
+        "platform": "抖音",
+        "icon": "douyin.ico",
+        "rect": [
+          70,
+          65.7,
+          29.3,
+          31.5
+        ],
+        "avatar": "domestic-6.webp"
+      }
+    ]
+  },
+  "global_live": {
+    "image": "global-live.webp",
+    "note": "",
+    "cells": [
+      {
+        "name": "ImperialHal",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          10.3,
+          1.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "波風水雞",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          40.2,
+          1.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "PanicApex",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          70,
+          1.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "Genburten",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          10.3,
+          33.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "patiphan",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          40.2,
+          33.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "ASIAZXD",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          70,
+          33.3,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "Phonyhead",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          10.3,
+          65.7,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "Genburten",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          40.2,
+          65.7,
+          29.2,
+          31.5
+        ]
+      },
+      {
+        "name": "Yuki",
+        "platform": "Twitch",
+        "icon": "twitch.ico",
+        "rect": [
+          70,
+          65.7,
+          29.2,
+          31.5
+        ]
+      }
+    ]
+  }
+}

@@ -1,13 +1,15 @@
 import { defineConfig } from 'vitepress'
 
+const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
+
 export default defineConfig({
   lang: 'zh-CN',
   title: 'DD 监控室 CE',
   description: '多画面直播观看工具，软件介绍、下载与独立插件。',
-  base: '/DD_Monitor_Website/',
+  base,
   cleanUrls: true,
   appearance: 'dark',
-  head: [['link', { rel: 'icon', href: '/DD_Monitor_Website/logo.svg' }]],
+  head: [['link', { rel: 'icon', href: `${base}logo.svg` }]],
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'DD 监控室 CE',
