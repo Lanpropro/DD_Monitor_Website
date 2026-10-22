@@ -22,7 +22,7 @@ const RING_OFFSETS = [
 ]
 // 仅调整画面墙位置，保留素材文件名和其他演示的图片引用。
 // 按顺序交换位置：08 先与23交换，再与53交换；第56格等待补充素材。
-const IMAGE_SWAPS = [[20,6],[52,7],[42,22],[19,9],[8,23],[53,8],[15,17],[7,20]]
+const IMAGE_SWAPS = [[20,6],[52,7],[42,22],[19,9],[8,23],[53,8],[15,17]]
 const IMAGE_ORDER = Array.from({ length:RING_OFFSETS.length }, (_,i) => i + 1)
 for (const [a,b] of IMAGE_SWAPS) {
   [IMAGE_ORDER[a - 1],IMAGE_ORDER[b - 1]] = [IMAGE_ORDER[b - 1],IMAGE_ORDER[a - 1]]
