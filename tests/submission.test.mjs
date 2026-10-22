@@ -35,5 +35,5 @@ test('integrated home retains submission entry alongside annotated previews and 
   const home = read('docs/.vitepress/theme/HomePage.vue')
   for (const component of ['<PluginSubmission />','<MatchSyncDemo v-if=','<PlatformPreview v-else']) assert.ok(home.includes(component),component)
   const html = read('docs/.vitepress/dist/index.html')
-  for (const feature of ['aria-label="提交新插件"','class="match-spotlight"','aria-label="二路演示进度"','previews/match-sync.webp']) assert.ok(html.includes(feature),feature)
+  for (const feature of ['aria-label="提交新插件"','class="match-spotlight"','aria-label="二路演示进度"','videos/match-sync-recording.mp4']) assert.ok(html.includes(feature),feature)
 })

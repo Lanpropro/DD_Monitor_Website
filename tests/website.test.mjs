@@ -970,7 +970,7 @@ test('plugin cards expose full-card selection and render concrete feature detail
   assert.ok(panel.includes('比赛二路同步自动演示'))
   assert.ok(panel.includes('match-sync-demo'))
   assert.ok(panel.includes('aria-label="二路演示进度"'))
-  assert.ok(panel.includes('previews/match-sync.webp'))
+  assert.ok(panel.includes('videos/match-sync-recording.mp4'))
   assert.ok(panel.includes('合并弹幕'))
   assert.ok(!home.includes('已选中 · 功能在下方'))
   assert.ok(!home.includes('点击查看具体功能'))
@@ -1054,63 +1054,71 @@ test('return button lands at the introduction with the wall behind it, never at 
 
 
 const { MATCH_DURATION, matchTourFrame } = await import('../docs/.vitepress/theme/match-tour.mjs')
-function mountMatchDemo({ reduced = false, observerSupported = true } = {}) {
+function mountMatchDemo({ reduced = false, observerSupported = true, rejectPlay = false } = {}) {
   const script = read('docs/.vitepress/theme/MatchSyncDemo.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
   let mount, unmount, observe, motionChange
-  const frames = new Map(), listeners = new Map()
+  const listeners = new Map()
   const motion = { matches:reduced, addEventListener:(_,fn) => { motionChange = fn }, removeEventListener:() => { motionChange = null } }
   const doc = { hidden:false, addEventListener:(name,fn) => listeners.set(name,fn), removeEventListener:name => listeners.delete(name) }
+  const player = { currentTime:0, paused:true, muted:false, plays:0, pauses:0,
+    play() { this.plays++; this.paused = false; return rejectPlay ? Promise.reject(new Error('autoplay blocked')) : Promise.resolve() },
+    pause() { this.pauses++; this.paused = true } }
   const context = { MATCH_DURATION, matchTourFrame, computed:fn => ({ get value() { return fn() } }), ref:value => ({ value }),
-    onMounted:fn => { mount = fn }, onUnmounted:fn => { unmount = fn }, document:doc, window:{ matchMedia:() => motion },
-    requestAnimationFrame:fn => { frames.set(1,fn); return 1 }, cancelAnimationFrame:id => frames.delete(id) }
+    onMounted:fn => { mount = fn }, onUnmounted:fn => { unmount = fn }, document:doc, window:{ matchMedia:() => motion } }
   if (observerSupported) context.IntersectionObserver = class { constructor(fn) { observe = fn } observe() {} disconnect() { observe = null } }
-  const state = runInNewContext(script + '\n;({ steps, active, time, frame, focusedStep, detailStyle, reduced, tick })', context)
-  mount()
-  return { state, frames, doc, listeners, motion, unmount,
+  const state = runInNewContext(script + '\n;({ steps, active, video, time, frame, focusedStep, reduced, blocked, readTime, sync })', context)
+  state.video.value = player; mount()
+  return { state, player, doc, listeners, unmount,
     visibility(value) { observe([{ isIntersecting:value }]) },
-    motion(value) { motion.matches = value; motionChange() },
-    tick(now) { const fn = frames.get(1); frames.clear(); fn?.(now) } }
+    motion(value) { motion.matches = value; motionChange() } }
 }
 
-test('automatic match timeline unifies chapters, offset adjustment, audio and cursor', () => {
-  for (const [time,active] of [[0,0],[5999,0],[6000,1],[16999,1],[17000,2],[25999,2],[26000,3],[34000,3]]) {
+test('video annotation chapters follow the existing 28-second recording boundaries', () => {
+  assert.equal(MATCH_DURATION,28000)
+  for (const [time,active] of [[0,0],[5999,0],[6000,1],[15999,1],[16000,2],[22999,2],[23000,3],[28000,3]]) {
     const frame = matchTourFrame(time)
     assert.equal(frame.active,active); assert.ok(frame.progress >= 0 && frame.progress <= 1)
-    assert.ok(frame.cursor.every(n => Number.isFinite(n) && n >= 0 && n <= 100))
   }
-  assert.equal(matchTourFrame(8000).offset,6.9)
-  assert.equal(matchTourFrame(11000).offset,3.5)
-  assert.equal(matchTourFrame(14000).offset,0)
-  assert.deepEqual(matchTourFrame(22000).volumes,[18,0,42])
-  assert.deepEqual(matchTourFrame(24000).muted,[false,true,true])
   assert.equal(matchTourFrame(-100).active,0)
 })
 
-test('automatic match playback pauses offscreen and in background, resumes without jumps and cleans up', () => {
+test('annotations use media time for playback, seeking and looping instead of a separate clock', () => {
   const p = mountMatchDemo(), s = p.state
-  assert.equal(p.frames.size,0)
-  p.visibility(true); p.tick(1000); p.tick(1100); assert.equal(s.time.value,100)
-  p.visibility(false); assert.equal(p.frames.size,0)
-  p.visibility(true); p.tick(5000); assert.equal(s.time.value,100)
-  p.doc.hidden = true; p.listeners.get('visibilitychange')(); assert.equal(p.frames.size,0)
-  p.doc.hidden = false; p.listeners.get('visibilitychange')(); p.tick(9000); p.tick(9100); assert.equal(s.time.value,200)
-  p.motion(true); assert.equal(s.time.value,0); assert.equal(p.frames.size,0)
-  p.motion(false); assert.equal(p.frames.size,1)
-  s.time.value = 33950; p.tick(10000); p.tick(10100); assert.equal(s.time.value,50)
-  p.unmount(); assert.equal(p.frames.size,0); assert.equal(p.listeners.size,0)
-  const reduced = mountMatchDemo({ reduced:true }); reduced.visibility(true); assert.equal(reduced.frames.size,0); reduced.unmount()
-  const fallback = mountMatchDemo({ observerSupported:false }); assert.equal(fallback.frames.size,1); fallback.unmount()
+  for (const [seconds,active] of [[0,0],[7,1],[17,2],[24,3],[0,0]]) {
+    p.player.currentTime = seconds; s.readTime()
+    assert.equal(s.time.value,seconds * 1000); assert.equal(s.active.value,active)
+    assert.equal(s.focusedStep.value,s.steps[active])
+  }
+  const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
+  assert.ok(source.includes('@timeupdate="readTime"')); assert.ok(source.includes('@seeking="readTime"'))
+  assert.ok(!source.includes('requestAnimationFrame')); assert.ok(!source.includes('setInterval'))
+  p.unmount()
 })
 
-test('passive match preview exposes automatic progress without buttons, input or fictional comments', () => {
+test('recording pauses offscreen, in background and for reduced motion and guards pending playback', async () => {
+  const p = mountMatchDemo()
+  assert.equal(p.player.plays,0)
+  p.visibility(true); await Promise.resolve(); assert.equal(p.player.paused,false); assert.equal(p.player.muted,true)
+  p.visibility(false); assert.equal(p.player.paused,true)
+  p.visibility(true); p.doc.hidden = true; p.listeners.get('visibilitychange')()
+  await Promise.resolve(); assert.equal(p.player.paused,true)
+  p.doc.hidden = false; p.listeners.get('visibilitychange')(); await Promise.resolve(); assert.equal(p.player.paused,false)
+  p.motion(true); assert.equal(p.player.paused,true)
+  p.motion(false); p.unmount(); await Promise.resolve(); assert.equal(p.player.paused,true); assert.equal(p.listeners.size,0)
+  const reduced = mountMatchDemo({ reduced:true }); reduced.visibility(true); assert.equal(reduced.player.plays,0); reduced.unmount()
+  const fallback = mountMatchDemo({ observerSupported:false }); await Promise.resolve(); assert.equal(fallback.player.paused,false); fallback.unmount()
+  const blocked = mountMatchDemo({ rejectPlay:true }); blocked.visibility(true); await Promise.resolve(); await Promise.resolve(); assert.equal(blocked.state.blocked.value,true); blocked.unmount()
+})
+
+test('passive match preview combines real recording and overlay without simulated controls or screenshot stand-ins', () => {
   const home = readFileSync(resolve(dist,'index.html'),'utf8')
   const panel = home.split('id="plugin-demo"')[1].split('plugin-compatibility')[0]
-  for (const removed of ['<video','.mp4','<button','<input','<select','main-source-badge','match-comments','这波配合漂亮']) assert.ok(!panel.includes(removed),removed)
-  for (const item of ['比赛二路同步自动演示','二路演示进度','不连接直播、不执行真实同步或播放声音']) assert.ok(panel.includes(item))
+  for (const item of ['<video','videos/match-sync-recording.mp4','class="match-spotlight"','二路演示进度','标注随视频进度同步']) assert.ok(panel.includes(item),item)
+  for (const removed of ['<button','<input','<select','previews/match-sync.webp','match-detail','match-cursor','match-comments']) assert.ok(!panel.includes(removed),removed)
   const source = read('docs/.vitepress/theme/MatchSyncDemo.vue')
   assert.ok(!source.includes('@click')); assert.ok(!source.includes('@input'))
-  assert.ok(source.includes('真实合并弹幕')); assert.ok(source.includes('prefers-reduced-motion'))
-  assert.ok(source.includes('class="match-cursor"')); assert.ok(source.includes('aria-current='))
+  assert.ok(source.includes('muted loop playsinline')); assert.ok(!source.includes(' controls'))
+  assert.ok(source.includes('prefers-reduced-motion')); assert.ok(source.includes('aria-current='))
 })
 
 test('confirmed domestic identities include six local cached avatars and overseas cell two is corrected', () => {
@@ -1120,16 +1128,4 @@ test('confirmed domestic identities include six local cached avatars and oversea
   for (const c of cells) assert.ok(existsSync(resolve(root,'docs/public/previews/avatars/' + c.avatar)))
   assert.equal(platformPreviews.global_live.cells[1].name,'波風水雞')
   assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
-})
-
-test('automatic chapter state drives the spotlight and matching magnified crop', () => {
-  const p = mountMatchDemo(), s = p.state
-  for (const [time,index] of [[0,0],[9000,1],[20000,2],[30000,3]]) {
-    s.time.value = time
-    assert.equal(s.focusedStep.value,s.steps[index])
-    const [x,y,w,h] = s.steps[index].rect, crop = s.detailStyle.value
-    assert.equal(parseFloat(crop.width),10000 / w); assert.equal(parseFloat(crop.height),10000 / h)
-    assert.equal(parseFloat(crop.left),-x / w * 100); assert.equal(parseFloat(crop.top),-y / h * 100)
-  }
-  p.unmount()
 })
