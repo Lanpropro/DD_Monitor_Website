@@ -30,3 +30,10 @@ test('production HTML exposes a working external issue-form link on both pages',
     assert.doesNotMatch(html, /href="\/DD_Monitor_Website\/https:/)
   }
 })
+
+test('integrated home retains submission entry alongside annotated previews and match focus controls', () => {
+  const home = read('docs/.vitepress/theme/HomePage.vue')
+  for (const component of ['<PluginSubmission />','<MatchSyncDemo v-if=','<PlatformPreview v-else']) assert.ok(home.includes(component),component)
+  const html = read('docs/.vitepress/dist/index.html')
+  for (const feature of ['aria-label="提交新插件"','class="match-spotlight"','aria-label="二路交互功能"','previews/match-sync.webp']) assert.ok(html.includes(feature),feature)
+})
