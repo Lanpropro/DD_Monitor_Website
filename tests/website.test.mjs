@@ -304,7 +304,7 @@ test('idle drift keeps the original compact orbit speed and amplitude', () => {
 
 test('supplied recordings spiral outward from the center without overlapping tiles', () => {
   const splash = read('docs/.vitepress/theme/SplashWall.vue')
-  const ring = splash.match(/const RING_OFFSETS = (\[[\s\S]*?\])\nconst /)?.[1]
+  const ring = splash.match(/const RING_OFFSETS = (\[[\s\S]*?\n\])/)?.[1]
   assert.ok(ring, 'missing the center-out tile order')
   assert.match(splash, /function buildImageTiles\(gridColumns\)/, 'recordings must be mapped onto the repeated wall')
   assert.match(splash, /for \(let quadrantRow = 0; quadrantRow < 2;/, 'the wall needs all four repeated quadrants')
@@ -1128,4 +1128,20 @@ test('confirmed domestic identities include six local cached avatars and oversea
   for (const c of cells) assert.ok(existsSync(resolve(root,'docs/public/previews/avatars/' + c.avatar)))
   assert.equal(platformPreviews.global_live.cells[1].name,'波風水雞')
   assert.equal(platformPreviews.global_live.cells[1].platform,'Twitch')
+})
+
+test('wall position exchanges apply in the requested sequence while position 56 remains unfilled', () => {
+  const script = read('docs/.vitepress/theme/SplashWall.vue').split('<script setup>')[1].split('</script>')[0].replace(/^import .*$/gm,'')
+  const { IMAGE_ORDER, buildImageTiles } = runInNewContext(script + '\n;({ IMAGE_ORDER, buildImageTiles })', {
+    withBase:value => value, ref:value => ({ value }), reactive:value => value, onMounted() {}, onUnmounted() {}
+  })
+  const expected = new Map([[20,6],[6,20],[52,7],[7,52],[42,22],[22,42],[19,9],[9,19],[8,53],[23,8],[53,23],[15,17],[17,15]])
+  for (let position=1;position<=55;position++) assert.equal(IMAGE_ORDER[position - 1],expected.get(position) ?? position,`position ${position}`)
+  assert.equal(IMAGE_ORDER.length,55); assert.equal(new Set(IMAGE_ORDER).size,55)
+  assert.ok(!existsSync(resolve(root,'docs/public/wall/56.webp')))
+  for (const columns of [14,8]) {
+    const tiles = buildImageTiles(columns)
+    assert.equal(tiles.size,220)
+    assert.equal([...tiles.values()].filter(image => image === 56).length,0)
+  }
 })
