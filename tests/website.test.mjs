@@ -10,7 +10,7 @@ const root = resolve(import.meta.dirname, '..')
 const read = path => readFileSync(resolve(root, path), 'utf8').replace(/\r\n/g, '\n')
 const plugins = JSON.parse(read('docs/data/plugins.json'))
 const dist = resolve(root, 'docs/.vitepress/dist')
-const base = '/DD_Monitor_Website/'
+const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 
 test('homepage uses the approved product name and viewing copy', () => {
   const source = read('docs/.vitepress/theme/HomePage.vue')
@@ -214,7 +214,7 @@ test('website screenshot derivatives remove only the native title bar', () => {
 
 test('homepage exposes software and every plugin download before JavaScript runs', () => {
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
-  assert.ok(home.includes('href="/DD_Monitor_Website/download"'))
+  assert.ok(home.includes(`href="${base}download"`))
   assert.ok(home.includes('id="plugins"'))
   assert.ok(home.includes('screenshots/landscape.webp'))
   assert.ok(!home.includes('查看完整截图'), 'the presentation should not show a redundant screenshot link')
@@ -226,7 +226,7 @@ test('homepage exposes software and every plugin download before JavaScript runs
   for (const plugin of plugins) {
     assert.ok(home.includes(plugin.download), `missing homepage download: ${plugin.id}`)
     assert.ok(home.includes(plugin.name), `missing homepage plugin: ${plugin.id}`)
-    assert.ok(home.includes(`/DD_Monitor_Website/plugins/${plugin.id}`))
+    assert.ok(home.includes(`${base}plugins/${plugin.id}`))
   }
 })
 

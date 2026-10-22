@@ -12,9 +12,9 @@ test('the website is independent from plugin source and keeps original release d
   for (const plugin of plugins) assert.ok(plugin.download.startsWith('https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/'))
   const release = JSON.parse(read('docs/data/software-release.json'))
   assert.ok(release.download.startsWith('https://github.com/Lanpropro/DD_Monitor_CE/releases/download/'))
-  assert.ok(read('docs/.vitepress/config.mjs').includes("base: '/DD_Monitor_Website/'"))
+  assert.ok(read('docs/.vitepress/config.mjs').includes("process.env.SITE_BASE || '/DD_Monitor_Website/'"))
   const home = read('docs/.vitepress/dist/index.html')
-  assert.ok(home.includes('/DD_Monitor_Website/wall/01.webp'))
+  assert.ok(home.includes(`${process.env.SITE_BASE || '/DD_Monitor_Website/'}wall/01.webp`))
   assert.ok(!home.includes('href="/DD_Monitor_Plugins/'))
   const pkg = JSON.parse(read('package.json'))
   assert.equal(pkg.scripts.dev,'npm run docs:dev')
@@ -32,4 +32,16 @@ test('deployment is explicit and validation runs in the standalone repository', 
     assert.ok(read(path).includes('npm run build')); assert.ok(read(path).includes('npm test'))
   }
   assert.ok(existsSync(resolve(root,'LICENSE')))
+})
+
+test('custom-domain build uses root asset paths while local preview keeps its repository base', () => {
+  const config = read('docs/.vitepress/config.mjs')
+  assert.ok(config.includes('href: `${base}logo.svg`'))
+  const workflow = read('.github/workflows/pages.yml')
+  assert.ok(workflow.includes('SITE_BASE: /'))
+  const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
+  const home = read('docs/.vitepress/dist/index.html')
+  assert.ok(home.includes(`href="${base}logo.svg"`))
+  assert.ok(home.includes(`src="${base}wall/56.webp"`))
+  if (base === '/') assert.ok(!home.includes('/DD_Monitor_Website/assets/'))
 })
