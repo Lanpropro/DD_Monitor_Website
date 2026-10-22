@@ -45,3 +45,7 @@ CI 自动构建并运行测试；GitHub Pages 发布通过手动工作流执行�
 
 迁移记录见 [MIGRATION.md](MIGRATION.md)，开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，素材来源见 [ASSETS.md](docs/public/ASSETS.md)。
 保留原项目 [LGPL-2.1 许可](LICENSE)。第三方截图、直播画面和平台标识的权利归各自权利人。
+
+## 自定义域名部署
+
+正式域名为 `ddmonitor.top`。Pages 手动部署工作流使用 `SITE_BASE=/` 构建并测试，保证站点位于域名根路径；默认本地预览仍为 `/DD_Monitor_Website/`。域名需要在 GitHub Pages 设置中绑定，并在腾讯云 DNSPod 添加 GitHub Pages 的四条 A 记录及 www CNAME；证书就绪后启用 Enforce HTTPS。

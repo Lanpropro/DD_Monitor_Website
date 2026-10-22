@@ -8,6 +8,8 @@ concurrency:
   cancel-in-progress: false
 jobs:
   build:
+    env:
+      SITE_BASE: /
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
