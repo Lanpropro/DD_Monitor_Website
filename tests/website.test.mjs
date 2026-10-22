@@ -1135,7 +1135,7 @@ test('wall position exchanges apply in the requested sequence while position 56 
   const { IMAGE_ORDER, buildImageTiles } = runInNewContext(script + '\n;({ IMAGE_ORDER, buildImageTiles })', {
     withBase:value => value, ref:value => ({ value }), reactive:value => value, onMounted() {}, onUnmounted() {}
   })
-  const expected = new Map([[20,6],[6,20],[52,7],[7,52],[42,22],[22,42],[19,9],[9,19],[8,53],[23,8],[53,23],[15,17],[17,15]])
+  const expected = new Map([[20,52],[6,20],[52,7],[7,6],[42,22],[22,42],[19,9],[9,19],[8,53],[23,8],[53,23],[15,17],[17,15]])
   for (let position=1;position<=55;position++) assert.equal(IMAGE_ORDER[position - 1],expected.get(position) ?? position,`position ${position}`)
   assert.equal(IMAGE_ORDER.length,55); assert.equal(new Set(IMAGE_ORDER).size,55)
   assert.ok(!existsSync(resolve(root,'docs/public/wall/56.webp')))
