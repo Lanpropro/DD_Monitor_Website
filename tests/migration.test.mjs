@@ -42,6 +42,6 @@ test('custom-domain build uses root asset paths while local preview keeps its re
   const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
   const home = read('docs/.vitepress/dist/index.html')
   assert.ok(home.includes(`href="${base}logo.svg"`))
-  assert.ok(home.includes(`src="${base}wall/56.webp"`))
+  assert.ok(home.includes(`data-source="${base}wall/56.webp"`))
   if (base === '/') assert.ok(!home.includes('/DD_Monitor_Website/assets/'))
 })

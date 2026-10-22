@@ -1,6 +1,6 @@
 <script setup>
 import { withBase } from 'vitepress'
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, reactive, ref } from 'vue'
 
 // 标准画面墙：等尺寸格子铺成 2×2 的重复块，拖动按周期取模，四向都接得上。
 const TILE_COUNT = 56
@@ -33,7 +33,41 @@ const wall = ref(null)
 const offset = reactive({ x: 0, y: 0 })
 const columns = ref(14)
 const imageTiles = ref(buildImageTiles(14))
+const requestedImages = ref(new Set()), readyImages = ref(new Set()), fullImages = ref(new Set())
+let imageObserver
 let tileNodes = []
+function imageSource(n) {
+  const id = tileImage(n)
+  if (!requestedImages.value.has(id)) return undefined
+  const folder = fullImages.value.has(id) ? '' : 'thumbs/'
+  return `${base}wall/${folder}${String(id).padStart(2,'0')}.webp`
+}
+function tileStyle(n) {
+  const id = tileImage(n) - 1
+  return { '--i':(n - 1) % 14, backgroundImage:`url(${base}wall/preview.webp)`, backgroundPosition:`${id % 7 / 6 * 100}% ${Math.floor(id / 7) / 7 * 100}%` }
+}
+function requestImage(id,full = false) {
+  if (!id) return
+  requestedImages.value.add(id)
+  if (full) fullImages.value.add(id)
+}
+function loadNearby(entries) {
+  for (const entry of entries) if (entry.isIntersecting) requestImage(Number(entry.target.dataset.image))
+}
+function observeImages() {
+  imageObserver?.disconnect()
+  if (typeof IntersectionObserver === 'function') {
+    imageObserver = new IntersectionObserver(loadNearby,{ root:section.value, rootMargin:'96px', threshold:0.01 })
+    tileNodes.forEach(tile => imageObserver.observe(tile))
+  } else {
+    imageTiles.value.forEach(id => requestImage(id))
+  }
+}
+function markReady(id) { readyImages.value.add(id) }
+function markFailed(id) {
+  readyImages.value.delete(id)
+  fullImages.value.delete(id)
+}
 let period = { x: 0, y: 0 }
 let centerShift = { x: 0, y: 0 }
 let scrollProgress = 0
@@ -130,6 +164,7 @@ function magnify(clientX, clientY) {
     const scale = 1 + MAGNIFY_SCALE * near * near
     const next = near > 0.002 ? `scale(${scale.toFixed(3)})` : ''
     const lit = near > 0.4
+    if (lit) requestImage(Number(tile.dataset.image),true)
     const key = next + (lit ? '!' : '')
     if (tile.__scale !== key) {
       tile.__scale = key
@@ -160,6 +195,7 @@ function measure() {
   if (gridColumns && gridColumns !== columns.value) {
     columns.value = gridColumns
     imageTiles.value = buildImageTiles(gridColumns)
+    nextTick(observeImages)
   }
   const gap = parseFloat(styles.gap) || 16
   const rows = TOTAL_TILES / columns.value
@@ -258,6 +294,7 @@ onMounted(() => {
   reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
   tileNodes = wall.value ? [...wall.value.children] : []
   measure()
+  observeImages()
   updateScroll()
   const root = document.documentElement
   root.classList.add('splash-mode', 'splash-boot')
@@ -268,6 +305,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  imageObserver?.disconnect()
   cancelAnimationFrame(scrollFrame)
   cancelAnimationFrame(pointerFrame)
   cancelAnimationFrame(driftFrame)
@@ -282,9 +320,10 @@ onUnmounted(() => {
     @pointerdown="onPointerDown" @pointermove="onPointerMove" @pointerup="onPointerUp"
     @pointercancel="onPointerUp" @pointerleave="onPointerLeave">
     <div ref="wall" class="splash-wall">
-      <span v-for="n in TILE_COUNT * REPEATS" :key="n" class="splash-tile" :style="{ '--i': (n - 1) % 14 }">
-        <img v-if="tileImage(n)" :src="`${base}wall/${String(tileImage(n)).padStart(2, '0')}.webp`"
-          alt="" width="1280" height="720" draggable="false" />
+      <span v-for="n in TILE_COUNT * REPEATS" :key="n" class="splash-tile" :data-image="tileImage(n)" :style="tileStyle(n)">
+        <img v-if="tileImage(n)" :data-source="`${base}wall/${String(tileImage(n)).padStart(2, '0')}.webp`"
+          :src="imageSource(n)" :class="{ 'is-ready':readyImages.has(tileImage(n)) }" @load="markReady(tileImage(n))" @error="markFailed(tileImage(n))"
+          alt="" width="1280" height="720" decoding="async" draggable="false" />
       </span>
     </div>
     <p class="splash-hint"><span class="hint-copy"><span>拖动查看</span><span class="splash-dot">·</span><span>向下滚动进入主页</span></span></p>
@@ -322,9 +361,8 @@ onUnmounted(() => {
   overflow: hidden;
   border-radius: 10px;
   border: 1px solid var(--vp-c-divider);
-  background:
-    linear-gradient(150deg, color-mix(in srgb, var(--vp-c-brand-1) 16%, transparent), transparent 62%),
-    var(--vp-c-bg-alt);
+  background-color: var(--vp-c-bg-alt);
+  background-size: 700% 800%;
   box-shadow: inset 0 1px 0 #ffffff10;
   transform-origin: 50% 50%;
   transition: transform 110ms var(--ease-out), border-color 160ms ease, box-shadow 160ms ease;
@@ -334,12 +372,15 @@ onUnmounted(() => {
   animation-delay: calc(var(--i) * 55ms);
 }
 .splash-tile img {
+  opacity: 0;
+  transition: opacity 180ms var(--ease-out);
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
   pointer-events: none;
 }
+.splash-tile img.is-ready { opacity:1; }
 @keyframes tile-rise {
   from { opacity: 0; translate: 0 26px; }
   to { opacity: 1; translate: 0 0; }
@@ -373,7 +414,7 @@ onUnmounted(() => {
   .hint-copy { gap: 5px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .splash-tile { animation: none; transition: none; }
+  .splash-tile, .splash-tile img { animation: none; transition: none; }
   .splash-hint, .hint-copy { animation: none; }
 }
 </style>
