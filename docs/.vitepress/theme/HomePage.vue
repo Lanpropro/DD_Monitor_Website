@@ -6,9 +6,9 @@ import release from '../../data/software-release.json'
 import SplashWall from './SplashWall.vue'
 import ScreenshotShowcase from './ScreenshotShowcase.vue'
 import PluginCarousel from './PluginCarousel.vue'
-import PluginRecording from './PluginRecording.vue'
+import PlatformPreview from './PlatformPreview.vue'
 import BackToIntro from './BackToIntro.vue'
-import MatchSyncTimeline from './MatchSyncTimeline.vue'
+import MatchSyncDemo from './MatchSyncDemo.vue'
 
 const previewPlugin = ref(2)
 const page = ref(null)
@@ -97,7 +97,7 @@ onUnmounted(() => {
       </article></PluginCarousel>
       <div id="plugin-demo" class="plugin-demo-panel">
         <div class="plugin-demo-heading" data-reveal aria-live="polite"><p class="eyebrow">插件功能</p><h3>{{ plugins[previewPlugin].name }}</h3><p class="plugin-detail-description">{{ plugins[previewPlugin].description }}</p><a :href="withBase('/plugins/' + plugins[previewPlugin].id)">阅读完整说明 ↗</a></div>
-        <div class="plugin-demo-content"><MatchSyncTimeline v-if="plugins[previewPlugin].id === 'match_sync'" /><PluginRecording v-else :key="plugins[previewPlugin].id" :plugin="plugins[previewPlugin]" /></div>
+        <div class="plugin-demo-content"><MatchSyncDemo v-if="plugins[previewPlugin].id === 'match_sync'" /><PlatformPreview v-else :key="plugins[previewPlugin].id" :plugin="plugins[previewPlugin]" /></div>
       </div>
       <p class="plugin-compatibility">插件独立下载、独立启用。安装前请查看<a :href="withBase('/download#插件兼容性')">软件版本与兼容要求</a>。</p>
     </section>
