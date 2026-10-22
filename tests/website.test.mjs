@@ -264,9 +264,9 @@ test('opening screen shows the recorded tiles in the placeholder wall before any
   for (let index = 1; index <= 56; index++) {
     const file = String(index).padStart(2, '0') + '.webp'
     assert.ok(existsSync(resolve(root, `docs/public/wall/${file}`)))
-    assert.equal((wallContent.match(new RegExp(`${base}wall/${file}`, 'g')) || []).length, 4, `${file} must appear in all four repeated wall quadrants`)
+    assert.equal((wallContent.match(new RegExp(`data-source="${base}wall/${file}"`, 'g')) || []).length, 4, `${file} must appear in all four repeated wall quadrants`)
   }
-  assert.equal((wallContent.match(/\/wall\/\d{2}\.webp/g) || []).length, 224, 'only the supplied recordings replace placeholders')
+  assert.equal((wallContent.match(/data-source="[^\"]*\/wall\/\d{2}\.webp"/g) || []).length, 224, 'only the supplied recordings replace placeholders')
   assert.ok(home.includes('拖动查看'), 'the opening screen must say it can be dragged')
   assert.ok(home.indexOf('class="splash"') < home.indexOf('class="showcase"'), 'the wall comes before the page content')
 })
@@ -1169,19 +1169,24 @@ function mountWallImages({ supported = true } = {}) {
     observe(tile) { this.targets.push(tile) }
     disconnect() { this.closed = true }
   }
-  const state = runInNewContext(script + '\n;({ section, imageTiles, imageSource, requestedImages, readyImages, fullImages, requestImage, markReady, markFailed, loadNearby, observeImages, setTiles:tiles => { tileNodes = tiles } })',context)
+  const state = runInNewContext(script + '\n;({ section, imageTiles, imageSource, imageSourceSet, FIRST_IMAGES, requestedImages, fullImages, requestImage, loadNearby, observeImages, setTiles:tiles => { tileNodes = tiles } })',context)
   state.section.value = {}
   return { state, observers }
 }
 
-test('wall initially renders a single lightweight sprite without requesting all clear images', () => {
+test('first-view wall images start from HTML with responsive clear sources instead of a blurry sprite', () => {
   const home = readFileSync(resolve(dist,'index.html'),'utf8')
   const wall = home.match(/<section class="splash"[\s\S]*?<\/section>/)[0]
   assert.equal((wall.match(/data-source=/g) || []).length,224)
-  assert.equal((wall.match(/<img[^>]*\ssrc=/g) || []).length,0)
-  assert.ok(wall.includes(`${base}wall/preview.webp`))
-  const sprite = readFileSync(resolve(root,'docs/public/wall/preview.webp'))
-  assert.ok(sprite.length < 35 * 1024)
+  assert.equal((wall.match(/<img[^>]*\ssrc=/g) || []).length,100)
+  assert.equal((wall.match(/<img[^>]*\ssrcset=/g) || []).length,100)
+  assert.equal((wall.match(/fetchpriority="high"/g) || []).length,36)
+  assert.ok(wall.includes(`${base}wall/thumbs/01.webp 640w, ${base}wall/01.webp 1280w`))
+  assert.ok(wall.includes('sizes="(max-width: 700px) 304px, (max-width: 730px) 170px, 24vw"'))
+  assert.ok(!wall.includes('wall/preview.webp'))
+  const source = read('docs/.vitepress/theme/SplashWall.vue')
+  const imageStyle = source.split('.splash-tile img {')[1].split('}')[0]
+  assert.ok(!imageStyle.includes('opacity'), 'loaded images must not wait for a JavaScript load flag to become visible')
   let originals = 0, thumbs = 0
   for (let i=1;i<=56;i++) {
     const file = String(i).padStart(2,'0') + '.webp'
@@ -1194,31 +1199,38 @@ test('wall initially renders a single lightweight sprite without requesting all 
 test('visible wall copies share one image request and hover upgrades only the selected identity', () => {
   const { state:s, observers } = mountWallImages()
   const positions = [...s.imageTiles.value.entries()]
-  const [first,id] = positions[0], copies = positions.filter(([,value]) => value === id).map(([position]) => position)
+  const [first,id] = positions.find(([,value]) => !s.FIRST_IMAGES.has(value)), copies = positions.filter(([,value]) => value === id).map(([position]) => position)
+  const initial = s.requestedImages.value.size
+  assert.equal(initial,25)
   assert.equal(s.imageSource(first),undefined)
+  assert.equal(s.imageSourceSet(first),undefined)
   const targets = [{ dataset:{ image:String(id) } },{ dataset:{ image:String(id) } },{ dataset:{ image:'56' } }]
   s.setTiles(targets); s.observeImages()
   assert.equal(observers[0].options.root,s.section.value)
   assert.equal(observers[0].options.rootMargin,'96px')
   observers[0].callback(targets.map((target,index) => ({ target,isIntersecting:index < 2 })))
-  assert.equal(s.requestedImages.value.size,1)
+  assert.equal(s.requestedImages.value.size,initial + 1)
   assert.equal(s.requestedImages.value.has(56),id === 56)
   const file = String(id).padStart(2,'0') + '.webp'
   for (const position of copies) assert.equal(s.imageSource(position),'/wall/thumbs/' + file)
-  s.markReady(id); assert.ok(s.readyImages.value.has(id))
+  assert.equal(s.imageSourceSet(first),`/wall/thumbs/${file} 640w, /wall/${file} 1280w`)
   s.requestImage(id,true)
   for (const position of copies) assert.equal(s.imageSource(position),'/wall/' + file)
   assert.equal(s.fullImages.value.size,1)
-  s.markFailed(id); assert.equal(s.readyImages.value.has(id),false); assert.equal(s.imageSource(first),'/wall/thumbs/' + file)
+  assert.equal(s.imageSourceSet(first),undefined)
   s.observeImages(); assert.ok(observers[0].closed)
 })
 
-test('wall image fallback loads only compact thumbnails and removes observer on unmount', () => {
+test('wall without IntersectionObserver retains responsive clear sources and cleans up on unmount', () => {
   const { state:s } = mountWallImages({ supported:false })
   s.observeImages(); assert.equal(s.requestedImages.value.size,56); assert.equal(s.fullImages.value.size,0)
+  for (const [position,id] of s.imageTiles.value) {
+    assert.ok(s.imageSource(position).endsWith(`/thumbs/${String(id).padStart(2,'0')}.webp`))
+    assert.ok(s.imageSourceSet(position).endsWith('1280w'))
+  }
   const source = read('docs/.vitepress/theme/SplashWall.vue')
   assert.ok(source.includes('onUnmounted(() => {\n  imageObserver?.disconnect()'))
   assert.ok(source.includes('nextTick(observeImages)'))
   assert.ok(source.includes('decoding="async"'))
-  assert.ok(source.includes('.splash-tile, .splash-tile img { animation: none; transition: none; }'))
+  assert.ok(source.includes('.splash-tile { animation: none; transition: none; }'))
 })
