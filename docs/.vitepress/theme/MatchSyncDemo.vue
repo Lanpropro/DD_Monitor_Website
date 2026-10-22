@@ -57,7 +57,6 @@ onUnmounted(() => {
       <div class="match-settings"><span class="match-step-label">0{{ active + 1 }} / 本段演示</span><h4>{{ focusedStep.title }}</h4><p class="match-step-description">{{ focusedStep.text }}</p></div>
     </div>
     <div class="match-step-tabs" data-reveal role="group" aria-label="二路演示进度"><div v-for="(step,i) in steps" :key="step.title" :class="{ 'is-active':active === i }" :aria-current="active === i ? 'step' : undefined"><span>0{{ i + 1 }}</span><div><strong>{{ step.title }}</strong><small v-if="reduced">{{ step.text }}</small></div><i v-if="!reduced" :style="{ transform:`scaleX(${active > i ? 1 : active === i ? frame.progress : 0})` }" aria-hidden="true"></i></div></div>
-    <p class="match-demo-note">真实软件录屏，标注随视频进度同步；网页不连接直播，不执行实际同步，视频无音轨。</p>
   </section>
 </template>
 <style scoped>
@@ -80,7 +79,6 @@ onUnmounted(() => {
 .match-step-tabs > div { position:relative; overflow:hidden; display:flex; align-items:center; gap:10px; padding:13px 12px; border:1px solid var(--vp-c-divider); border-radius:8px; text-align:left; font-size:12px; color:var(--vp-c-text-2); background:var(--vp-c-bg-soft); }
 .match-step-tabs > div > span { font-size:10px; color:var(--vp-c-brand-1); }
 .match-step-tabs > div.is-active { border-color:var(--vp-c-brand-1); background:var(--vp-c-brand-soft); color:var(--vp-c-text-1); }
-.match-demo-note { margin:5px 0 0; color:var(--vp-c-text-2); font-size:11px; line-height:1.8; }
 @media (max-width:800px) { .match-workspace { grid-template-columns:1fr; gap:18px; } .match-leader { display:none; } .match-step-tabs { grid-template-columns:repeat(2,minmax(0,1fr)); } .match-settings { padding:16px; border:1px solid var(--vp-c-divider); border-radius:10px; } }
  .match-spotlight > span { position:absolute; top:3px; left:3px; padding:3px 5px; border-radius:4px; background:#101827ed; color:var(--vp-c-brand-1); font-size:clamp(6px,.75vw,10px); }
 .match-step-tabs strong { font-size:inherit; font-weight:500; }

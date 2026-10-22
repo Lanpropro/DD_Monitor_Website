@@ -1152,3 +1152,10 @@ test('overseas preview omits the removed explanatory caption without leaving an 
   assert.ok(source.includes('<figcaption v-if="preview.note">'))
   assert.ok(!JSON.stringify(platformPreviews).includes('九格取自宣传片剪辑'))
 })
+
+test('final viewing copy retains the concise tip and removes the match footer note', () => {
+  const viewing = read('docs/.vitepress/theme/FeatureDemo.vue')
+  assert.ok(viewing.includes('看光标演示，也可以亲手试试。</p>'))
+  assert.ok(!viewing.includes('预览只演示操作，不播放直播声音。'))
+  assert.ok(!read('docs/.vitepress/theme/MatchSyncDemo.vue').includes('match-demo-note'))
+})

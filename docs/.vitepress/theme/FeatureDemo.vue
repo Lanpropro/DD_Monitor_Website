@@ -40,7 +40,7 @@ const status = ref('把关注卡片拖入画面，或先选择卡片再点击画
 let cardStart = null
 let pickerTrigger = null
 const scenes = [
-  { id: 'layout', title: '摆放直播', heading: '一个主画面，五个小画面。', description: '选择主画面 + 5 小布局，再将关注栏里的六位主播依次拖入格子。喜欢的直播，各有位置。' },
+  { id: 'layout', title: '摆放直播', heading: '一个主画面，五个小画面。', description: '选择主画面 + 5 小布局，再将关注栏里的主播依次拖入格子。喜欢的直播，各有位置。' },
   { id: 'ratio', title: '调整比例', heading: '把更多空间，留给主画面。', description: '拖动主画面与小画面之间的边框，按观看重点分配空间。' },
   { id: 'sound', title: '控制声音', heading: '多路同屏，只听想听的声音。', description: '每路直播独立调节音量与静音，其他画面继续保持原来的声音设置。' }
 ]
@@ -229,7 +229,7 @@ function onCardUp(event) {
       <div class="demo-scenes" role="group" aria-label="观看体验演示">
         <button v-for="(item, i) in scenes" :key="item.id" class="demo-scene" :aria-pressed="scene === item.id" @click="selectScene(item.id)"><span>0{{ i + 1 }}</span>{{ item.title }}<span aria-hidden="true">↗</span></button>
       </div>
-      <div class="demo-description"><h3>{{ sceneInfo.heading }}</h3><p>{{ sceneInfo.description }}</p><p class="demo-tip">看光标演示，也可以亲手试试。预览只演示操作，不播放直播声音。</p></div>
+      <div class="demo-description"><h3>{{ sceneInfo.heading }}</h3><p>{{ sceneInfo.description }}</p><p class="demo-tip">看光标演示，也可以亲手试试。</p></div>
     </div>
     <div class="demo-preview" data-reveal data-reveal-delay="120">
       <div class="demo-toolbar"><span>DD 监控室 CE · 可操作缩略预览</span><div><button v-if="(manual || held) && !reduced" @click="replayTour">观看演示</button><button v-if="!manual" @click="takeControl">自己试试</button><button @click="replayTour">重播</button></div></div>
