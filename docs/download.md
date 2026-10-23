@@ -8,24 +8,22 @@ import release from './data/software-release.json'
 
 # 下载 DD 监控室 CE
 
-## Windows 安装器与便携版
+## Windows 安装器
 
-支持 Windows 10 / 11 64 位。新用户可使用安装器，也可下载便携包、完整解压后启动，无需另外安装 Python 或播放器运行库。
+支持 Windows 10 / 11 64 位。下载安装器，按提示安装后启动，无需另外安装 Python 或播放器运行库。
 
 <div class="card-actions">
-  <a class="action primary" :href="release.installer.download">下载 {{ release.tag }} 安装器</a>
-  <a class="action secondary" :href="release.download">下载 {{ release.tag }} 便携版</a>
+  <a class="action primary" :href="release.download">下载 {{ release.tag }} 安装器</a>
   <a class="action secondary" :href="release.release">查看 {{ release.tag }} 发布说明</a>
 </div>
 
-<p>当前版本 <strong>{{ release.tag }}</strong>，发布于 {{ release.publishedOn }}。上方按钮直接下载官方 <code>{{ release.installer.name }}</code> 或 <code>{{ release.packageName }}</code>。GitHub 自动生成的 Source code 是源码，不是便携程序。</p>
+<p>当前版本 <strong>{{ release.tag }}</strong>，发布于 {{ release.publishedOn }}。上方按钮直接下载官方 <code>{{ release.packageName }}</code>。GitHub 自动生成的 Source code 是源码，不是安装器。</p>
 
 <details><summary>核对安装包 SHA256</summary>
-<p>安装器：<code class="checksum">{{ release.installer.sha256 }}</code></p>
-<p>便携包：<code class="checksum">{{ release.sha256 }}</code></p>
+<code class="checksum">{{ release.sha256 }}</code>
 </details>
 
-安装器支持创建快捷方式及卸载；便携包解压后启动 `DD监控室CE.exe`，保留随包目录。[安装与启动帮助](/guide#启动软件)。
+安装器支持创建快捷方式及卸载。[安装与启动帮助](/guide#启动软件)。
 
 ## 插件兼容性
 

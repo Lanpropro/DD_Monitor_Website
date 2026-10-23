@@ -14,7 +14,7 @@ https://lanpropro.github.io/DD_Monitor_Website/
 迁移本身只创建源码仓库及部署配置，不自动执行公开发布。
 CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动触发，并每6小时检查软件仓库的最新正式 Release，更新构建中的版本数据后发布到 `https://ddmonitor.top/`。GitHub 定时任务可能延迟，长期无活动也可能停用；需要立即更新时可手动运行。
 
-同步脚本为 `tools/sync-software-release.mjs`，使用 Actions 自带的只读 `GITHUB_TOKEN` 读取公开发布信息，不需要额外跨仓库凭证。安装器、便携包必须已上传并提供 SHA256，且地址属于官方软件仓库；缺少资产或校验值时失败并保留现有站点。同步只更新本次构建的数据，不提交回源码分支。版本专属功能介绍仍按 PR 流程维护。
+同步脚本为 `tools/sync-software-release.mjs`，使用 Actions 自带的只读 `GITHUB_TOKEN` 读取公开发布信息，不需要额外跨仓库凭证。Setup 安装器必须已上传并提供 SHA256，且地址属于官方软件仓库；缺少资产或校验值时失败并保留现有站点。同步只更新本次构建的数据，不提交回源码分支。版本专属功能介绍仍按 PR 流程维护。
 
 本地更新版本基线可运行 `node tools/sync-software-release.mjs`，检查 `docs/data/software-release.json` 后构建、测试并提交。普通本地构建和测试不会联网查询 Release。
 

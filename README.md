@@ -26,7 +26,7 @@ npm run dev
 - 主播名称：`docs/.vitepress/theme/FeatureDemo.vue` 的 `cards` 数组
 - 插件卡片文案与下载信息：`docs/data/plugins.json`
 - 页面文章：`docs/*.md`、`docs/plugins/*.md`
-- 软件版本、发布日期、安装器／便携包链接与 SHA256：`docs/data/software-release.json`，首页、下载页和软件页共用。
+- 软件版本、发布日期、Setup 安装器链接与 SHA256：`docs/data/software-release.json`，首页、下载页和软件页共用。
 - 截图、缩略图、视频：`docs/public/`
 - 网站路径与导航：`docs/.vitepress/config.mjs`
 

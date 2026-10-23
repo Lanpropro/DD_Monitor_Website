@@ -16,17 +16,16 @@ export function releaseData(latest, current) {
     }
     return { name, download: value.browser_download_url, sha256: value.digest.slice(7) }
   }
-  const portable = asset(`DDMonitorCE-${tag}-exe.zip`)
+  const installer = asset('DDMonitorSetup.exe')
   return {
     ...current,
     verifiedOn: publishedOn,
     publishedOn,
     tag,
-    download: portable.download,
-    packageName: portable.name,
+    download: installer.download,
+    packageName: installer.name,
     release: latest.html_url,
-    sha256: portable.sha256,
-    installer: asset('DDMonitorSetup.exe')
+    sha256: installer.sha256
   }
 }
 
