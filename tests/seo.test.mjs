@@ -12,6 +12,13 @@ test('the homepage uses the exact requested search title without a repeated site
   assert.match(read('index.html'), /<meta name="description" content="[^"]*多平台直播同屏观看[^"]*"/)
 })
 
+test('the initial homepage head exposes the Bing and Google ownership verification tags', () => {
+  const head = read('index.html').match(/<head>[\s\S]*?<\/head>/)?.[0]
+  assert.ok(head)
+  assert.ok(head.includes('<meta name="msvalidate.01" content="D61A2B4684282295EBCEC08CE03541F6">'))
+  assert.ok(head.includes('<meta name="google-site-verification" content="DcaYRcnYrK1c7coKJIsiQzx5su8JjqrCVy4jUXPM3uM">'))
+})
+
 test('all content pages have a unique production canonical URL matching the sitemap', () => {
   const sitemap = read('sitemap.xml')
   const locations = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map(match => match[1])
