@@ -1,15 +1,27 @@
 import { defineConfig } from 'vitepress'
 
 const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
+const hostname = 'https://ddmonitor.top'
 
 export default defineConfig({
   lang: 'zh-CN',
   title: 'DD 监控室 CE',
-  description: '多画面直播观看工具，软件介绍、下载与独立插件。',
+  description: 'DD 监控室 CE 是免费的 Windows 多平台直播同屏观看工具，支持多画面布局、独立音量控制、弹幕与平台插件扩展。提供软件下载、功能介绍和使用帮助。',
   base,
   cleanUrls: true,
   appearance: 'dark',
   head: [['link', { rel: 'icon', href: `${base}logo.svg` }]],
+  sitemap: {
+    hostname,
+    transformItems: items => items.filter(item => item.url !== '404' && !item.url.startsWith('public/'))
+  },
+  transformHead({ pageData }) {
+    if (pageData.relativePath === '404.md' || pageData.relativePath.startsWith('public/')) {
+      return [['meta', { name: 'robots', content: 'noindex' }]]
+    }
+    const path = pageData.relativePath.replace(/(^|\/)index\.md$/, '$1').replace(/\.md$/, '')
+    return [['link', { rel: 'canonical', href: `${hostname}/${path}` }]]
+  },
   themeConfig: {
     logo: '/logo.svg',
     siteTitle: 'DD 监控室 CE',
