@@ -1,6 +1,8 @@
 name: Deploy website to Pages
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
 permissions:
   contents: read
 concurrency:
@@ -18,6 +20,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Synchronize latest stable software release
+        run: node tools/sync-software-release.mjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
       - run: npm run build
       - run: npm test
       - uses: actions/upload-pages-artifact@v3

@@ -6,13 +6,13 @@ title: 安装与使用帮助
 
 ## 启动软件
 
-1. 从[下载页](/download)获取 Windows 便携版 ZIP。
-2. 将整个 ZIP 解压到一个可写目录，不要在压缩包里直接启动。
-3. 双击 `DD监控室CE.exe`。保留 `_internal` 等随包目录，它们包含运行所需组件。
+1. 从[下载页](/download)获取 Windows 安装器 `DDMonitorSetup.exe`。
+2. 运行安装器，按提示选择安装位置并完成安装。
+3. 使用安装器创建的快捷方式启动 `DD监控室CE.exe`。
 4. 首次启动时添加 B 站直播间号或官方链接；需要导入 B 站关注时再扫码登录。
 5. 从关注列表拖入画面格子，选择布局，调整各路音量。
 
-源码启动方式、VLC 运行库准备与完整依赖见[软件 README](https://github.com/Lanpropro/DD_Monitor_CE#快速开始)。
+源码启动方式、libmpv 运行库准备与完整依赖见[软件 README](https://github.com/Lanpropro/DD_Monitor_CE#快速开始)。
 
 ## 安装插件
 
