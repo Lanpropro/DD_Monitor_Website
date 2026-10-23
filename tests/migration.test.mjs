@@ -21,11 +21,14 @@ test('the website is independent from plugin source and keeps original release d
   assert.ok(!JSON.stringify(pkg).includes('file:../'))
 })
 
-test('deployment is explicit and validation runs in the standalone repository', () => {
+test('deployment supports stable release synchronization and validates before publishing', () => {
   assert.ok(read('.github/workflows/ci.yml').includes('workflow_dispatch:'))
   const workflow = read('.github/workflows/pages.yml')
   assert.ok(workflow.includes('workflow_dispatch:'))
   assert.ok(!workflow.includes('  push:'))
+  assert.ok(workflow.includes("cron: '17 */6 * * *'"))
+  assert.ok(workflow.includes('node tools/sync-software-release.mjs'))
+  assert.ok(workflow.indexOf('node tools/sync-software-release.mjs') < workflow.indexOf('npm run build'))
   assert.ok(workflow.includes("github.ref == 'refs/heads/main'"))
   assert.ok(workflow.includes('path: docs/.vitepress/dist'))
   for (const path of ['.github/workflows/ci.yml','.github/workflows/pages.yml']) {

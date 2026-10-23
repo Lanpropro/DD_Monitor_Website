@@ -26,6 +26,7 @@ npm run dev
 - 主播名称：`docs/.vitepress/theme/FeatureDemo.vue` 的 `cards` 数组
 - 插件卡片文案与下载信息：`docs/data/plugins.json`
 - 页面文章：`docs/*.md`、`docs/plugins/*.md`
+- 软件版本、发布日期、安装器／便携包链接与 SHA256：`docs/data/software-release.json`，首页、下载页和软件页共用。
 - 截图、缩略图、视频：`docs/public/`
 - 网站路径与导航：`docs/.vitepress/config.mjs`
 
@@ -40,7 +41,7 @@ npm test
 
 ## 部署
 
-CI 自动构建并运行测试；GitHub Pages 发布通过手动工作流执行，具体见 [部署说明](WEBSITE.md)。
+CI 自动构建并运行测试；GitHub Pages 支持手动发布，并每6小时同步最新正式软件 Release 后构建、测试和发布，具体见 [部署说明](WEBSITE.md)。
 插件和软件安装包继续从原仓库 Releases 下载，本仓库不保存插件源码和账号配置。
 
 迁移记录见 [MIGRATION.md](MIGRATION.md)，开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，素材来源见 [ASSETS.md](docs/public/ASSETS.md)。
