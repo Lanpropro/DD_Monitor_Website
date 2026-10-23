@@ -2,15 +2,21 @@
 title: 软件介绍
 ---
 
+<script setup>
+import release from './data/software-release.json'
+</script>
+
 # 一面画面墙，装下喜欢的直播
 
-DD 监控室 CE 是面向 Windows 的多窗口直播观看工具，基于 Python、PySide6 与 VLC。B 站直播由本体提供，其他平台通过独立插件扩展。
+DD 监控室 CE 是面向 Windows 的多窗口直播观看工具，基于 Python、PySide6 与 libmpv。B 站直播由本体提供，其他平台通过独立插件扩展。
 
-## 0.4：更自由地布置直播墙
+## 0.5：播放、弹幕与录制升级
+
+播放内核升级为 libmpv，提供全局与单格编解码设置；录制支持 NVIDIA、Intel 与 AMD 硬件编码，失败时回退 CPU。Qt Quick 弹幕绘制改善滚动流畅度，新增通知中心与 B 站弹幕发送，关注栏预览和窗口拖动也得到优化。
+
+[阅读 0.5 完整更新说明](https://github.com/Lanpropro/DD_Monitor_CE/releases/tag/v0.5)。
 
 切换深浅色或跟随系统，使用本地图片、静音循环视频作为背景。拖动预设布局的内部边框调整画面比例，再将主播位置、比例与声音设置存成直播间组合，方便下次恢复。
-
-[阅读 0.4 完整更新说明](https://github.com/Lanpropro/DD_Monitor_CE/releases/tag/v0.4)。
 
 ## 多画面与布局
 
@@ -45,7 +51,9 @@ B 站支持扫码登录及关注导入。插件平台的公开直播通常不需
 
 公开 v0.2 发布说明包含单路录制和即时回放。首次使用前，在「设置 → 录制」选择保存目录；再使用格子的录制按钮。便携包内置 FFmpeg。多路同时录制会增加资源占用，请按机器性能选择。
 
-当前公开版本为 **0.4**，新增外观与背景美化、拖动边框调整布局比例和直播间组合保存。[查看软件下载与版本说明](/download)。
+<p>当前公开版本为 <strong>{{ release.tag }}</strong>。<a :href="release.release">查看最新发布说明</a>。</p>
+
+[查看软件下载与版本说明](/download)。
 
 ## 独立扩展更多平台
 

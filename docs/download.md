@@ -2,24 +2,28 @@
 title: 下载与兼容性
 ---
 
+<script setup>
+import release from './data/software-release.json'
+</script>
+
 # 下载 DD 监控室 CE
 
-## Windows 便携版
+## Windows 安装器
 
-支持 Windows 10 / 11 64 位。下载 EXE 便携包、完整解压后启动，无需另外安装 Python 或 VLC。
+支持 Windows 10 / 11 64 位。下载安装器，按提示安装后启动，无需另外安装 Python 或播放器运行库。
 
 <div class="card-actions">
-  <a class="action primary" href="https://github.com/Lanpropro/DD_Monitor_CE/releases/download/v0.4/DDMonitorCE-v0.4-exe.zip">下载 v0.4 便携版</a>
-  <a class="action secondary" href="https://github.com/Lanpropro/DD_Monitor_CE/releases/tag/v0.4">查看 v0.4 发布说明</a>
+  <a class="action primary" :href="release.download">下载 {{ release.tag }} 安装器</a>
+  <a class="action secondary" :href="release.release">查看 {{ release.tag }} 发布说明</a>
 </div>
 
-当前版本 **v0.4**，发布于 2026-10-16。上方按钮直接下载官方 `DDMonitorCE-v0.4-exe.zip`。GitHub 自动生成的 Source code 是源码，不是便携程序。
+<p>当前版本 <strong>{{ release.tag }}</strong>，发布于 {{ release.publishedOn }}。上方按钮直接下载官方 <code>{{ release.packageName }}</code>。GitHub 自动生成的 Source code 是源码，不是安装器。</p>
 
 <details><summary>核对安装包 SHA256</summary>
-<code class="checksum">453718d02cf46b59ed44ce6ee9f3511e499ec55f46fbc265219bcb6aadb7cd17</code>
+<code class="checksum">{{ release.sha256 }}</code>
 </details>
 
-解压后启动 `DD监控室CE.exe`，保留随包目录。[安装与启动帮助](/guide#启动软件)。
+安装器支持创建快捷方式及卸载。[安装与启动帮助](/guide#启动软件)。
 
 ## 插件兼容性
 
@@ -31,7 +35,7 @@ title: 下载与兼容性
 | [海外直播平台](/plugins/global_live) | 1.1 | 海外平台取流、自动画质、聊天接口，FFmpeg |
 | [比赛二路同步](/plugins/match_sync) | 1.2 | 比赛同步接口、PyAV、NumPy、FFmpeg |
 
-v0.4 在现有插件商店与软件更新功能上，增加深浅色主题、图片／视频背景、可调布局和直播间组合。旧 v0.2 用户首次需手动升级软件，之后可使用配套版本提供的更新功能。新插件依赖的后续改进，以对应插件发布页的要求为准。
+v0.5 将播放内核升级为 libmpv，增加编解码与硬件录制设置、Qt Quick 弹幕绘制、通知中心及 B 站弹幕发送。旧 v0.2 用户首次需手动升级软件，之后可使用配套版本提供的更新功能。新插件依赖的后续改进，以对应插件发布页的要求为准。
 
 ::: warning 旧 v0.2 的兼容限制
 此前核实的 v0.2 EXE 附件缺少 `ddm.live_danmaku`、`ddm.global_danmaku`、`ddm.auto_quality` 等模块，不能只替换插件 ZIP 来补齐。请先升级软件。
@@ -45,7 +49,7 @@ v0.4 在现有插件商店与软件更新功能上，增加深浅色主题、图
 
 ## 从源码运行
 
-需要 Python 3.10+、VLC 运行库、FFmpeg，以及当前软件仓库 `requirements.txt` 中的依赖。比赛同步还需要 PyAV 与 NumPy。
+需要 Python 3.10+、libmpv 运行库、FFmpeg，以及当前软件仓库 `requirements.txt` 中的依赖。比赛同步还需要 PyAV 与 NumPy。
 
 [打开软件源码与完整安装说明](https://github.com/Lanpropro/DD_Monitor_CE#快速开始)
 
