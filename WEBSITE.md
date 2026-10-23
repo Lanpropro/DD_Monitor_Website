@@ -23,8 +23,6 @@ CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动�
 以后绑定独立域名时，将 config.mjs 的 base 改为 `/` 并同步修改 favicon 路径与测试中的 base；
 再配置 Pages 自定义域名、DNS 与 HTTPS。本次迁移不购买域名、不改 DNS。
 
-## 本地开发
-
 ## 搜索引擎收录
 
 正式站点地图为 `https://ddmonitor.top/sitemap.xml`，构建时自动生成；`robots.txt` 允许抓取并声明站点地图。首页使用指定标题，各内容页的 canonical 统一指向正式域名，不随本地预览的 base 改变。404 与内部素材说明页标记为 noindex，且不进入站点地图。
