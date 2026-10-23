@@ -12,14 +12,15 @@ const plugins = JSON.parse(read('docs/data/plugins.json'))
 const dist = resolve(root, 'docs/.vitepress/dist')
 const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 
-test('the shared footer exposes the requested Bilibili profile and QQ contact', () => {
+test('the shared footer exposes the requested Bilibili profile without a personal QQ number', () => {
   for (const page of ['index.html', 'download.html', 'software.html', 'guide.html']) {
     const html = readFileSync(resolve(dist, page), 'utf8')
     const footer = html.match(/<footer class="VPFooter[^"]*"[^>]*>[\s\S]*?<\/footer>/)?.[0]
     assert.ok(footer, `${page} should have a footer`)
     assert.match(footer, /href="https:\/\/space\.bilibili\.com\/193559518"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/)
     assert.ok(footer.includes('B 站主页'))
-    assert.ok(footer.includes('QQ：1328781988'))
+    assert.ok(!footer.includes('1328781988'))
+    assert.ok(!footer.includes('QQ：'))
     assert.ok(footer.includes('软件与插件分别维护'))
   }
 })
