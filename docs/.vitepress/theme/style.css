@@ -48,6 +48,9 @@ body { min-width: 0; }
 .showcase { position: relative; z-index: 1; margin-top: 100vh; margin-top: 100dvh; max-width: 1440px; margin-inline: auto; padding: 0 64px; background: var(--vp-c-bg); }
 /* 页脚同样压在开屏画面墙之上，滚动到页尾时不会被墙盖住。 */
 .VPFooter { position: relative; z-index: 1; }
+.VPFooter .footer-contact { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 20px; margin-top: 16px; }
+.VPFooter .footer-contact a { color: var(--vp-c-brand-1); }
+.VPFooter .footer-contact > span { white-space: nowrap; }
 .hero { display: grid; grid-template-columns: 1.3fr 1fr; gap: 42px 64px; align-items: end; padding: 74px 0 48px; }
 .eyebrow { color: var(--vp-c-brand-1); font-size: 13px; font-weight: 600; letter-spacing: .08em; margin: 0 0 22px; }
 .eyebrow span { color: var(--vp-c-text-2); margin: 0 8px; }
