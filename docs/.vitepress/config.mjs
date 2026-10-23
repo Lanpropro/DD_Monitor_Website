@@ -10,7 +10,11 @@ export default defineConfig({
   base,
   cleanUrls: true,
   appearance: 'dark',
-  head: [['link', { rel: 'icon', href: `${base}logo.svg` }]],
+  head: [
+    ['link', { rel: 'icon', href: `${base}logo.svg` }],
+    ['meta', { name: 'msvalidate.01', content: 'D61A2B4684282295EBCEC08CE03541F6' }],
+    ['meta', { name: 'google-site-verification', content: 'DcaYRcnYrK1c7coKJIsiQzx5su8JjqrCVy4jUXPM3uM' }]
+  ],
   sitemap: {
     hostname,
     transformItems: items => items.filter(item => item.url !== '404' && !item.url.startsWith('public/'))
