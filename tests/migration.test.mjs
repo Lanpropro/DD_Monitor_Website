@@ -29,6 +29,8 @@ test('deployment supports stable release synchronization and validates before pu
   assert.ok(workflow.includes("cron: '17 */6 * * *'"))
   assert.ok(workflow.includes('node tools/sync-software-release.mjs'))
   assert.ok(workflow.indexOf('node tools/sync-software-release.mjs') < workflow.indexOf('npm run build'))
+  assert.ok(workflow.includes('node tools/sync-plugin-releases.mjs'))
+  assert.ok(workflow.indexOf('node tools/sync-plugin-releases.mjs') < workflow.indexOf('npm run build'))
   assert.ok(workflow.includes("github.ref == 'refs/heads/main'"))
   assert.ok(workflow.includes('path: docs/.vitepress/dist'))
   for (const path of ['.github/workflows/ci.yml','.github/workflows/pages.yml']) {

@@ -32,7 +32,8 @@
       "使用平台实际提供的画质档位，拖入后可独立调整音量、静音和暂停。",
       "在设置中启用后，悬停已开播的关注卡片即可静音预览，不改变格子的画质。",
       "聊天跟随主画面，支持字号、屏蔽词与保留条数，专注普通文字与表情。"
-    ]
+    ],
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.2"
   },
   {
     "id": "global_live",
@@ -65,12 +66,13 @@
       "根据分片速度与缓冲调整 HLS 档位，也可以手动选择直播实际提供的画质。",
       "关注卡片使用独立低档位静音预览，保持主画面的播放选择。",
       "读取 Twitch 与 YouTube 公开直播聊天，支持屏蔽词、字号与保留数量。"
-    ]
+    ],
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/v1.1"
   },
   {
     "id": "match_sync",
     "name": "比赛二路同步",
-    "version": "1.2",
+    "version": "1.4",
     "category": "比赛二路",
     "description": "选择比赛主画面，自动对齐多位主播直播，混合声音与合并弹幕。",
     "platforms": [
@@ -89,8 +91,8 @@
       "自动对齐比赛画面",
       "多路混音与合并弹幕"
     ],
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.2/match_sync-1.2.zip",
-    "sha256": "b52b6053fbda18014a77a463306846179c1713ae9d309ceb0ae85ecddd463ef7",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.4/match_sync-1.4.zip",
+    "sha256": "d1c42639ed565289d891f49bdf325f94668e4f40aca3be245c0549f426054d05",
     "minAppVersion": "0.3",
     "steps": [
       "选择一路比赛主画面",
@@ -101,6 +103,7 @@
       "选择比赛主画面，自动匹配其他主播的比赛画面，减少二路观看的时间差。",
       "比赛主画面优先使用最高画质，在观看区中保留清晰的比赛信息。",
       "同时混合多位主播的声音，并合并带来源标记的弹幕，集中观看不同解说。"
-    ]
+    ],
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/match-sync-v1.4"
   }
 ]
