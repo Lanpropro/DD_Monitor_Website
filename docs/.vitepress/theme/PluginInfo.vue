@@ -11,6 +11,7 @@ const plugin = computed(() => plugins.find(p => p.id === props.id))
     <div class="card-top"><div class="platform-icons"><img v-for="(icon, i) in plugin.icons" :key="icon"
       :src="withBase('/platforms/' + icon)" :alt="plugin.platforms[i]" width="32" height="32" /></div>
       <span class="version">v{{ plugin.version }}</span></div>
+    <h2 v-if="plugin.autoCatalog">{{ plugin.name }}</h2>
     <p>{{ plugin.description }}</p>
     <p>插件 ID：<code>{{ plugin.id }}</code> · 支持 {{ plugin.platforms.join('、') }}</p>
     <div class="card-actions"><a class="action primary" :href="plugin.download">下载 v{{ plugin.version }} ZIP</a>

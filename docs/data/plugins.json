@@ -105,5 +105,33 @@
       "同时混合多位主播的声音，并合并带来源标记的弹幕，集中观看不同解说。"
     ],
     "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/match-sync-v1.4"
+  },
+  {
+    "id": "bili_live",
+    "name": "B站直播互动",
+    "description": "逐格发送弹幕、表情与直播礼物；使用本体登录。",
+    "version": "1.0",
+    "category": "功能扩展",
+    "platforms": [
+      "B 站"
+    ],
+    "icons": [
+      "bilibili.ico"
+    ],
+    "features": [
+      "逐格发送弹幕与表情",
+      "直播礼物与背包",
+      "使用本体登录"
+    ],
+    "featureDetails": [
+      "作者：reon-nynes。使用本体登录，逐格发送文字弹幕、小表情和大表情。",
+      "支持礼物目录与背包；部分普通礼物单击即赠送，大表情单击即发送。",
+      "需要 v0.5.1 或之后且包含对应宿主接口的软件构建；安装前请确认软件构建包含相应接口，详见发布说明。"
+    ],
+    "autoCatalog": true,
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/bili-live-v1.0/bili_live-1.0.zip",
+    "sha256": "b21906a82a510a12528f81b7d324a254db3761dd87a00715ea37fc8adbde4a8b",
+    "minAppVersion": "0.5.1",
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/bili-live-v1.0"
   }
 ]

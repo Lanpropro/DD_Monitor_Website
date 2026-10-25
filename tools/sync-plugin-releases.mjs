@@ -1,4 +1,4 @@
-import { readFile, writeFile } from 'node:fs/promises'
+import { readFile, writeFile, access } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 
@@ -17,7 +17,14 @@ function compareVersions(a, b) {
 
 export function pluginData(catalog, current) {
   if (!Array.isArray(catalog.plugins)) throw new Error('Missing plugin catalog entries')
-  return current.map(plugin => {
+  const additions = catalog.plugins.filter(item => !current.some(plugin => plugin.id === item.id)).map(item => {
+    if (!/^[a-z][a-z0-9_]*$/.test(item.id) || typeof item.name !== 'string' || !item.name.trim() || typeof item.description !== 'string' || !item.description.trim()) {
+      throw new Error('Invalid new plugin metadata')
+    }
+    return { id: item.id, name: item.name, description: item.description, version: '0.0', category: '功能扩展',
+      platforms: [], icons: [], features: [item.description], featureDetails: [item.description], autoCatalog: true }
+  })
+  return [...current, ...additions].map(plugin => {
     const entries = catalog.plugins.filter(item => item.id === plugin.id)
     if (entries.length !== 1) throw new Error(`Missing or duplicate catalog entry: ${plugin.id}`)
     const item = entries[0]
@@ -41,6 +48,14 @@ export function pluginData(catalog, current) {
       release: `${repository}/releases/tag/${parts[0]}`
     }
   })
+}
+
+export async function ensurePluginPages(plugins, directory = new URL('../docs/plugins/', import.meta.url)) {
+  for (const plugin of plugins) {
+    const file = new URL(`${plugin.id}.md`, directory)
+    try { await access(file); continue } catch (error) { if (error.code !== 'ENOENT') throw error }
+    await writeFile(file, `---\ntitle: ${JSON.stringify(plugin.name)}\n---\n\n# 插件详情\n\n<PluginInfo id="${plugin.id}" />\n\n## 安装与使用\n\n请先确认最低软件版本，再[按安装教程导入 ZIP](/guide#安装插件)。具体功能、使用要求及更新记录见上方“发布说明”。\n`)
+  }
 }
 
 export async function verifiedBytes(url, sha256, request = fetch) {
@@ -67,6 +82,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const file = new URL('../docs/data/plugins.json', import.meta.url)
   const result = pluginData(catalog, JSON.parse(await readFile(file, 'utf8')))
   await Promise.all(result.map(plugin => verifiedBytes(plugin.download, plugin.sha256)))
+  await ensurePluginPages(result)
   await writeFile(file, JSON.stringify(result, null, 2) + '\n')
   console.log(`Plugin releases synchronized: ${result.map(plugin => `${plugin.id} ${plugin.version}`).join(', ')}`)
 }

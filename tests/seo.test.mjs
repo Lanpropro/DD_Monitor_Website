@@ -5,7 +5,8 @@ import { resolve } from 'node:path'
 
 const dist = resolve(import.meta.dirname, '../docs/.vitepress/dist')
 const read = file => readFileSync(resolve(dist, file), 'utf8')
-const routes = ['', 'software', 'download', 'guide', 'plugins/', 'plugins/domestic_live', 'plugins/global_live', 'plugins/match_sync']
+const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
+const routes = ['', 'software', 'download', 'guide', 'plugins/', ...plugins.map(p => `plugins/${p.id}`)]
 
 test('the homepage uses the exact requested search title without a repeated site suffix', () => {
   assert.equal(read('index.html').match(/<title>(.*?)<\/title>/)?.[1], 'DD 监控室 CE｜多平台直播同屏观看')
