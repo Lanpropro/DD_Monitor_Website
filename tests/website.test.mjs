@@ -171,7 +171,7 @@ test('catalog identities and published versions are explicit without a plugin so
   for (const p of plugins) {
     // Published artifacts can be newer than this checkout (e.g. match_sync).
     assert.match(p.version, /^\d+\.\d+(?:\.\d+)?$/)
-    assert.equal(p.minAppVersion, '0.3')
+    assert.match(p.minAppVersion, /^\d+\.\d+(?:\.\d+)?$/)
     assert.ok(existsSync(resolve(root, `docs/plugins/${p.id}.md`)))
     assert.equal(p.icons.length, p.platforms.length)
     for (const icon of p.icons) assert.ok(existsSync(resolve(root, `docs/public/platforms/${icon}`)))

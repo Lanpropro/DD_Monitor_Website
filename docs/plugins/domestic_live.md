@@ -47,6 +47,6 @@ title: 国内直播平台
 
 **1.1 · 2026-10-08**：新增虎牙、斗鱼、抖音账号登录与关注导入，抖音 FLV 不可用时回退到同画质 HLS。
 
-**1.0 · 2026-10-03**：统一国内插件版本为 1.0，沿用已有播放、画质、悬停预览与弹幕实现。[当前版本发布说明](https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.2)。
+**1.0 · 2026-10-03**：统一国内插件版本为 1.0，沿用已有播放、画质、悬停预览与弹幕实现。最新发布说明见本页下载区。
 
 [完整插件 README](https://github.com/Lanpropro/DD_Monitor_Plugins/blob/main/plugins/domestic_live/README.md) · [反馈问题](https://github.com/Lanpropro/DD_Monitor_Plugins/issues)
