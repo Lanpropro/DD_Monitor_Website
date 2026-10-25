@@ -5,6 +5,7 @@ title: 下载与兼容性
 <script setup>
 import release from './data/software-release.json'
 import plugins from './data/plugins.json'
+import { withBase } from 'vitepress'
 </script>
 
 # 下载 DD 监控室 CE
@@ -30,11 +31,10 @@ import plugins from './data/plugins.json'
 
 建议先将软件升级到最新公开版，再安装插件。各插件的最低软件版本见下表，还需要配套软件提供相应功能与运行库。
 
-| 插件 | 下载版本 | 最低软件版本 | 使用要求 |
-| --- | --- | --- | --- |
-| [国内直播平台](/plugins/domestic_live) | {{ plugins.find(p => p.id === 'domestic_live').version }} | {{ plugins.find(p => p.id === 'domestic_live').minAppVersion }} | 国内平台取流、画质与弹幕接口，FFmpeg |
-| [海外直播平台](/plugins/global_live) | {{ plugins.find(p => p.id === 'global_live').version }} | {{ plugins.find(p => p.id === 'global_live').minAppVersion }} | 海外平台取流、自动画质、聊天接口，FFmpeg |
-| [比赛二路同步](/plugins/match_sync) | {{ plugins.find(p => p.id === 'match_sync').version }} | {{ plugins.find(p => p.id === 'match_sync').minAppVersion }} | 比赛同步接口、PyAV、NumPy、FFmpeg |
+<table>
+<thead><tr><th>插件</th><th>下载版本</th><th>最低软件版本</th><th>使用要求</th></tr></thead>
+<tbody><tr v-for="plugin in plugins" :key="plugin.id"><td><a :href="withBase('/plugins/' + plugin.id)">{{ plugin.name }}</a></td><td>{{ plugin.version }}</td><td>{{ plugin.minAppVersion }}</td><td>{{ plugin.id === 'match_sync' ? '比赛同步接口、PyAV、NumPy、FFmpeg' : plugin.autoCatalog ? '安装前查看插件发布说明中的宿主接口与使用要求' : '平台取流、画质与弹幕接口，FFmpeg' }}</td></tr></tbody>
+</table>
 
 v0.5 将播放内核升级为 libmpv，增加编解码与硬件录制设置、Qt Quick 弹幕绘制、通知中心及 B 站弹幕发送。旧 v0.2 用户首次需手动升级软件，之后可使用配套版本提供的更新功能。新插件依赖的后续改进，以对应插件发布页的要求为准。
 

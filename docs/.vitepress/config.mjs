@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress'
+import plugins from '../data/plugins.json' with { type: 'json' }
 
 const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 const hostname = 'https://ddmonitor.top'
@@ -32,9 +33,7 @@ export default defineConfig({
     sidebar: {
       '/plugins/': [{ text: '插件', items: [
         { text: '所有插件', link: '/plugins/' },
-        { text: '国内直播平台', link: '/plugins/domestic_live' },
-        { text: '海外直播平台', link: '/plugins/global_live' },
-        { text: '比赛二路同步', link: '/plugins/match_sync' },
+        ...plugins.map(plugin => ({ text: plugin.name, link: '/plugins/' + plugin.id })),
         { text: '安装与升级', link: '/guide' }
       ] }]
     },

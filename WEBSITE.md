@@ -18,9 +18,9 @@ CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动�
 
 本地更新版本基线可运行 `node tools/sync-software-release.mjs`，检查 `docs/data/software-release.json` 后构建、测试并提交。普通本地构建和测试不会联网查询 Release。
 
-同一 Pages 工作流也运行 `node tools/sync-plugin-releases.mjs`，读取插件仓库最新正式 Release 的 `plugin-catalog.json`，自动更新网站已有插件的版本、下载链接、SHA256、最低软件版本和发布说明链接。脚本核对目录及各 ZIP 的 SHA256，拒绝版本回退、缺少条目和非官方地址；任一验证失败则不发布。首页、插件目录、详情页和下载页共用 `docs/data/plugins.json`。新插件展示卡片和功能文案仍需人工添加，不自动导入未经编辑的条目。
+同一 Pages 工作流也运行 `node tools/sync-plugin-releases.mjs`，读取插件仓库最新正式 Release 的 `plugin-catalog.json`，自动更新网站已有插件的版本、下载链接、SHA256、最低软件版本和发布说明链接。脚本核对目录及各 ZIP 的 SHA256，拒绝版本回退、缺少条目和非官方地址；任一验证失败则不发布。首页、插件目录、详情页和下载页共用 `docs/data/plugins.json`。新插件通过同样的目录与 ZIP 校验后自动加入滚动列表、插件目录、兼容性表及侧栏，并创建基础详情页。已有插件的人工文案保留，新插件默认使用目录名称及简介；没有专门截图时展示功能文字和发布说明，不复用其他插件的预览。
 
-发布插件时应上传包含全部已展示插件的最新 `plugin-catalog.json` 和相应 ZIP。网站每6小时检查一次，非即时发布回调；需要立即更新时，在网站仓库手动运行 Deploy website to Pages。同步仅修改构建产物所用数据，不回写 Git 分支；本地可运行同一脚本更新版本基线。
+发布插件时应上传包含全部正式插件的最新 `plugin-catalog.json` 和相应 ZIP。网站每6小时检查一次，非即时发布回调；需要立即更新时，在网站仓库手动运行 Deploy website to Pages。同步仅修改构建产物所用数据，不回写 Git 分支；本地可运行同一脚本更新版本基线。
 
 详情页下载区的版本与“发布说明”链接随目录自动同步；下方手写更新记录保留人工整理的历史，不要求每次发布先改网页文案。验证应检查同步后的下载区与目录一致，不能以手写记录尚未包含新版本阻止自动发布。
 

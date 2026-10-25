@@ -166,8 +166,9 @@ const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(item => {
 })
 
 test('catalog identities and published versions are explicit without a plugin source checkout', () => {
-  assert.equal(plugins.length, 3)
-  assert.deepEqual(plugins.map(p => p.id).sort(), ['domestic_live', 'global_live', 'match_sync'])
+  assert.ok(plugins.length >= 4)
+  assert.equal(new Set(plugins.map(p => p.id)).size, plugins.length)
+  assert.ok(plugins.some(p => p.id === 'bili_live'))
   for (const p of plugins) {
     // Published artifacts can be newer than this checkout (e.g. match_sync).
     assert.match(p.version, /^\d+\.\d+(?:\.\d+)?$/)
@@ -390,6 +391,10 @@ test('plugin details keep manual history separate from synchronized current rele
   for (const p of plugins) {
     const page = read(`docs/plugins/${p.id}.md`)
     const history = page.split('## 更新记录')[1]
+    if (p.autoCatalog) {
+      assert.ok(page.includes(`<PluginInfo id="${p.id}" />`))
+      continue
+    }
     assert.ok(history, `missing changelog: ${p.id}`)
     assert.match(history, /\*\*\d+\.\d+/, `missing documented historical version: ${p.id}`)
     assert.ok(page.includes(`<PluginInfo id="${p.id}" />`), `missing synchronized release panel: ${p.id}`)
@@ -419,8 +424,7 @@ test('appearance miniature and editable controls remain usable before hydration'
   assert.ok(!home.includes('观看组合'))
   assert.ok(home.includes('id="plugin-demo"'))
   for (const plugin of plugins) {
-    assert.equal(plugin.steps.length, 3)
-    assert.equal(new Set(plugin.steps).size, 3)
+    assert.ok(plugin.featureDetails.length > 0)
   }
   for (const chapter of ['选择主画面','偏移微调','混合声音','合并弹幕']) assert.ok(home.includes(chapter))
 })
@@ -955,11 +959,11 @@ test('plugin carousel renders downloads and keeps duplicate copies out of keyboa
   assert.ok(home.includes('aria-label="下一个插件"'))
   assert.equal((home.match(/class="carousel-group"/g) || []).length, 3)
   assert.equal((home.match(/class="carousel-group" aria-hidden="true"/g) || []).length, 2)
-  assert.equal((home.match(/class="[^"]*\bhome-plugin-card\b[^"]*"/g) || []).length, 9)
+  assert.equal((home.match(/class="[^"]*\bhome-plugin-card\b[^"]*"/g) || []).length, plugins.length * 3)
   for (const copy of home.split('<div class="carousel-group"').slice(1)) {
     if (!copy.startsWith(' aria-hidden="true"')) continue
     const cards = copy.match(/<article class="[^"]*\bhome-plugin-card\b[^"]*"[\s\S]*?<\/article>/g)
-    assert.equal(cards.length, 3)
+    assert.equal(cards.length, plugins.length)
     for (const card of cards) for (const control of card.match(/<(?:a|button)\b[^>]*>/g)) assert.ok(control.includes('tabindex="-1"'))
   }
   for (const p of plugins) assert.equal((home.match(new RegExp('href="' + p.download.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '"', 'g')) || []).length, 3)
@@ -1043,7 +1047,7 @@ test('platform previews preserve unconfirmed identities and load screenshots ins
   assert.ok(source.includes("cell.platform || '平台待确认'"))
   assert.ok(source.includes('class="platform-leaders"'))
   assert.ok(!source.includes('<video')); assert.ok(!source.includes('requestAnimationFrame'))
-  assert.ok(home.includes('<PlatformPreview v-else :key="plugins[previewPlugin].id"'))
+  assert.ok(home.includes('<PlatformPreview v-else-if="platformPreviews[plugins[previewPlugin].id]" :key="plugins[previewPlugin].id"'))
   assert.ok(!home.includes('PluginRecording'))
   assert.ok(source.includes('grid-template-columns:repeat(2,minmax(0,1fr))'))
 })
