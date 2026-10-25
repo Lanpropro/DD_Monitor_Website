@@ -2,7 +2,7 @@
   {
     "id": "domestic_live",
     "name": "国内直播平台",
-    "version": "1.3",
+    "version": "1.4",
     "category": "国内直播",
     "description": "将虎牙、斗鱼、抖音直播加入同一面画面墙。",
     "platforms": [
@@ -20,8 +20,8 @@
       "聊天弹幕同步",
       "登录拉取关注"
     ],
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/domestic-live-v1.3/domestic_live-1.3.zip",
-    "sha256": "039d55efbba3210d2206ad0312ed58437448ab131345cce684646483072fa48a",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/domestic-live-v1.4/domestic_live-1.4.zip",
+    "sha256": "6ad35f3e20aa6068ca640c0fdb95ae6a0cc5d22052b3fd5ac299c27207138391",
     "minAppVersion": "0.3",
     "steps": [
       "添加虎牙、斗鱼或抖音直播间",
@@ -33,12 +33,12 @@
       "在设置中启用后，悬停已开播的关注卡片即可静音预览，不改变格子的画质。",
       "聊天跟随主画面，支持字号、屏蔽词与保留条数，专注普通文字与表情。"
     ],
-    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.3"
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.4"
   },
   {
     "id": "global_live",
     "name": "海外直播平台",
-    "version": "1.1",
+    "version": "1.2",
     "category": "海外直播",
     "description": "关注海外频道，在软件内观看公开直播与聊天。",
     "platforms": [
@@ -54,8 +54,8 @@
       "聊天弹幕同步",
       "流畅度优化"
     ],
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/global-live-v1.1/global_live-1.1.zip",
-    "sha256": "04b4fa6c24d17b44143c3b091826b01a4d68db97944c685f2690716132682094",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/global-live-v1.2/global_live-1.2.zip",
+    "sha256": "6d0203669f5ddf46240719531c74d0a722ead18876761606822beda5ed5aadfb",
     "minAppVersion": "0.3",
     "steps": [
       "关注 Twitch 或 YouTube 直播",
@@ -67,7 +67,7 @@
       "关注卡片使用独立低档位静音预览，保持主画面的播放选择。",
       "读取 Twitch 与 YouTube 公开直播聊天，支持屏蔽词、字号与保留数量。"
     ],
-    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/global-live-v1.1"
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/global-live-v1.2"
   },
   {
     "id": "match_sync",
