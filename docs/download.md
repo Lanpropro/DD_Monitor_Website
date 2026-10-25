@@ -4,6 +4,7 @@ title: 下载与兼容性
 
 <script setup>
 import release from './data/software-release.json'
+import plugins from './data/plugins.json'
 </script>
 
 # 下载 DD 监控室 CE
@@ -27,13 +28,13 @@ import release from './data/software-release.json'
 
 ## 插件兼容性
 
-建议先将软件升级到最新公开版，再安装插件。当前插件清单要求至少 v0.3；不同插件还依赖配套软件提供的具体功能与运行库。
+建议先将软件升级到最新公开版，再安装插件。各插件的最低软件版本见下表，还需要配套软件提供相应功能与运行库。
 
-| 插件 | 下载版本 | 使用要求 |
-| --- | --- | --- |
-| [国内直播平台](/plugins/domestic_live) | 1.2 | 国内平台取流、画质与弹幕接口，FFmpeg |
-| [海外直播平台](/plugins/global_live) | 1.1 | 海外平台取流、自动画质、聊天接口，FFmpeg |
-| [比赛二路同步](/plugins/match_sync) | 1.2 | 比赛同步接口、PyAV、NumPy、FFmpeg |
+| 插件 | 下载版本 | 最低软件版本 | 使用要求 |
+| --- | --- | --- | --- |
+| [国内直播平台](/plugins/domestic_live) | {{ plugins.find(p => p.id === 'domestic_live').version }} | {{ plugins.find(p => p.id === 'domestic_live').minAppVersion }} | 国内平台取流、画质与弹幕接口，FFmpeg |
+| [海外直播平台](/plugins/global_live) | {{ plugins.find(p => p.id === 'global_live').version }} | {{ plugins.find(p => p.id === 'global_live').minAppVersion }} | 海外平台取流、自动画质、聊天接口，FFmpeg |
+| [比赛二路同步](/plugins/match_sync) | {{ plugins.find(p => p.id === 'match_sync').version }} | {{ plugins.find(p => p.id === 'match_sync').minAppVersion }} | 比赛同步接口、PyAV、NumPy、FFmpeg |
 
 v0.5 将播放内核升级为 libmpv，增加编解码与硬件录制设置、Qt Quick 弹幕绘制、通知中心及 B 站弹幕发送。旧 v0.2 用户首次需手动升级软件，之后可使用配套版本提供的更新功能。新插件依赖的后续改进，以对应插件发布页的要求为准。
 
