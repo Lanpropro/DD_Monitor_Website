@@ -2,6 +2,7 @@
 import { withBase } from 'vitepress'
 import { onMounted, onUnmounted, ref } from 'vue'
 import plugins from '../../data/plugins.json'
+import platformPreviews from '../../data/platform-previews.json'
 import PluginSubmission from './PluginSubmission.vue'
 import release from '../../data/software-release.json'
 import SplashWall from './SplashWall.vue'
@@ -98,7 +99,7 @@ onUnmounted(() => {
       </article></PluginCarousel>
       <div id="plugin-demo" class="plugin-demo-panel">
         <div class="plugin-demo-heading" data-reveal aria-live="polite"><p class="eyebrow">插件功能</p><h3>{{ plugins[previewPlugin].name }}</h3><p class="plugin-detail-description">{{ plugins[previewPlugin].description }}</p><a :href="withBase('/plugins/' + plugins[previewPlugin].id)">阅读完整说明 ↗</a></div>
-        <div class="plugin-demo-content"><MatchSyncDemo v-if="plugins[previewPlugin].id === 'match_sync'" /><PlatformPreview v-else :key="plugins[previewPlugin].id" :plugin="plugins[previewPlugin]" /></div>
+        <div class="plugin-demo-content"><MatchSyncDemo v-if="plugins[previewPlugin].id === 'match_sync'" /><PlatformPreview v-else-if="platformPreviews[plugins[previewPlugin].id]" :key="plugins[previewPlugin].id" :plugin="plugins[previewPlugin]" /><div v-else class="plugin-card"><p>最低软件版本 v{{ plugins[previewPlugin].minAppVersion }}</p><ul><li v-for="detail in plugins[previewPlugin].featureDetails" :key="detail">{{ detail }}</li></ul><a :href="plugins[previewPlugin].release">查看发布说明与使用要求 ↗</a></div></div>
       </div>
       <p class="plugin-compatibility">插件独立下载、独立启用。安装前请查看<a :href="withBase('/download#插件兼容性')">软件版本与兼容要求</a>。</p>
       <PluginSubmission />

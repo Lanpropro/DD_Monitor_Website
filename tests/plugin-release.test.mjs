@@ -2,7 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { pluginData, verifiedBytes } from '../tools/sync-plugin-releases.mjs'
+import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import { join } from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { pluginData, verifiedBytes, ensurePluginPages } from '../tools/sync-plugin-releases.mjs'
 
 const current = [{ id: 'match_sync', version: '1.2', name: '比赛二路同步', features: ['自动对齐比赛画面'] }]
 function fixture() {
@@ -15,7 +19,6 @@ function fixture() {
 
 test('published plugin metadata updates all release fields while preserving website copy', () => {
   const catalog = fixture()
-  catalog.plugins.push({ id: 'unreviewed_plugin' })
   const result = pluginData(catalog, current)
   assert.equal(result.length, 1)
   assert.equal(result[0].version, '1.4')
@@ -64,6 +67,39 @@ test('independent releases update overseas URLs even when its version is unchang
   assert.equal(result[1].version, '1.1')
   assert.match(result[1].download, /\/global-live-v1\.1\/global_live-1\.1\.zip$/)
   assert.match(result[1].release, /\/releases\/tag\/global-live-v1\.1$/)
+})
+
+test('new published plugins join once and remain stable on later synchronizations', () => {
+  const catalog = fixture()
+  catalog.plugins.push({ ...catalog.plugins[0], id: 'bili_live', name: 'B站直播互动', description: '发送弹幕与表情',
+    min_app_version: '0.5.1', asset_name: 'bili_live-1.4.zip',
+    url: catalog.plugins[0].url.replace('match_sync-1.4.zip', 'bili_live-1.4.zip') })
+  const result = pluginData(catalog, current)
+  assert.equal(result.length, 2)
+  assert.equal(result[1].id, 'bili_live')
+  assert.equal(result[1].minAppVersion, '0.5.1')
+  assert.equal(result[1].autoCatalog, true)
+  assert.deepEqual(pluginData(catalog, result), result)
+  catalog.plugins.push({ ...catalog.plugins[1] })
+  assert.throws(() => pluginData(catalog, current), /duplicate/)
+  catalog.plugins.pop()
+  catalog.plugins[1].id = '../escape'
+  assert.throws(() => pluginData(catalog, current), /metadata/)
+  catalog.plugins[1].id = 'bili_live'
+  catalog.plugins[1].sha256 = 'bad'
+  assert.throws(() => pluginData(catalog, current), /checksum/)
+})
+
+test('automatic detail pages are created without overwriting edited pages', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'plugin-pages-'))
+  try {
+    const url = pathToFileURL(directory + '/')
+    await ensurePluginPages([{ id: 'bili_live', name: 'B站直播互动' }], url)
+    assert.ok((await readFile(join(directory, 'bili_live.md'), 'utf8')).includes('<PluginInfo id="bili_live" />'))
+    await writeFile(join(directory, 'bili_live.md'), 'edited page')
+    await ensurePluginPages([{ id: 'bili_live', name: '新名称' }], url)
+    assert.equal(await readFile(join(directory, 'bili_live.md'), 'utf8'), 'edited page')
+  } finally { await rm(directory, { recursive: true }) }
 })
 
 test('plugin versions are compared numerically, including two-digit and patch versions', () => {
