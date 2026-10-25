@@ -47,6 +47,25 @@ test('missing, duplicate, stale or unsafe catalog entries fail without a partial
   }
 })
 
+test('independent releases update overseas URLs even when its version is unchanged', () => {
+  const download = 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download'
+  const before = [
+    { id: 'domestic_live', version: '1.2' },
+    { id: 'global_live', version: '1.1', download: `${download}/v1.1/global_live-1.1.zip` }
+  ]
+  const catalog = { plugins: before.map(plugin => {
+    const version = plugin.id === 'domestic_live' ? '1.3' : '1.1'
+    const tag = plugin.id === 'domestic_live' ? 'domestic-live-v1.3' : 'global-live-v1.1'
+    return { id: plugin.id, version, min_app_version: '0.3', sha256: 'b'.repeat(64),
+      asset_name: `${plugin.id}-${version}.zip`, url: `${download}/${tag}/${plugin.id}-${version}.zip` }
+  }) }
+  const result = pluginData(catalog, before)
+  assert.equal(result[0].version, '1.3')
+  assert.equal(result[1].version, '1.1')
+  assert.match(result[1].download, /\/global-live-v1\.1\/global_live-1\.1\.zip$/)
+  assert.match(result[1].release, /\/releases\/tag\/global-live-v1\.1$/)
+})
+
 test('plugin versions are compared numerically, including two-digit and patch versions', () => {
   assert.throws(() => pluginData(fixture(), [{ ...current[0], version: '1.10' }]))
   assert.throws(() => pluginData(fixture(), [{ ...current[0], version: '1.4.1' }]))
