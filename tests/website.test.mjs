@@ -386,12 +386,16 @@ test('the plugin catalog escapes the narrow documentation column', () => {
     'narrow screens fall back to one column')
 })
 
-test('plugin detail pages list every published version they can prove', () => {
+test('plugin details keep manual history separate from synchronized current releases', () => {
   for (const p of plugins) {
     const page = read(`docs/plugins/${p.id}.md`)
     const history = page.split('## 更新记录')[1]
     assert.ok(history, `missing changelog: ${p.id}`)
-    assert.ok(history.includes(`**${p.version}`), `changelog must name the published version ${p.version}: ${p.id}`)
+    assert.match(history, /\*\*\d+\.\d+/, `missing documented historical version: ${p.id}`)
+    assert.ok(page.includes(`<PluginInfo id="${p.id}" />`), `missing synchronized release panel: ${p.id}`)
+    const built = readFileSync(resolve(dist, `plugins/${p.id}.html`), 'utf8')
+    assert.ok(built.includes(`下载 v${p.version} ZIP`), `missing current release download: ${p.id}`)
+    assert.ok(built.includes(p.release), `missing current release notes: ${p.id}`)
   }
 })
 
