@@ -16,6 +16,7 @@
     "test": "npm run test:website"
   },
   "devDependencies": {
+    "fflate": "^0.8.3",
     "vitepress": "1.6.4"
   },
   "overrides": {

@@ -6,9 +6,72 @@ import { mkdtemp, readFile, writeFile, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { pluginData, verifiedBytes, ensurePluginPages } from '../tools/sync-plugin-releases.mjs'
+import { zipSync, strToU8 } from 'fflate'
+import { pluginData, verifiedBytes, ensurePluginPages, catalogFromReleases } from '../tools/sync-plugin-releases.mjs'
 
 const current = [{ id: 'match_sync', version: '1.2', name: '比赛二路同步', features: ['自动对齐比赛画面'] }]
+
+function publishedFixture() {
+  const files = new Map()
+  const release = (version, minimum = '0.6') => {
+    const name = `match_sync-${version}.zip`
+    const bytes = zipSync({ 'match_sync/plugin.json': strToU8(JSON.stringify({ id: 'match_sync', version, min_app_version: minimum })) })
+    const url = `https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v${version}/${name}`
+    files.set(url, bytes)
+    return { tag_name: `match-sync-v${version}`, html_url: `https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/match-sync-v${version}`,
+      published_at: '2026-11-02T16:10:00Z', assets: [{ name, state: 'uploaded', browser_download_url: url,
+        digest: `sha256:${createHash('sha256').update(bytes).digest('hex')}` }] }
+  }
+  return { files, release, request: async url => new Response(files.get(url), { status: files.has(url) ? 200 : 404 }) }
+}
+
+test('independent stable ZIP releases synchronize without a catalog and choose numeric versions', async () => {
+  const f = publishedFixture()
+  const releases = [f.release('1.5'), f.release('1.10'), { ...f.release('2.0'), prerelease: true }, { ...f.release('3.0'), draft: true }]
+  const result = pluginData(await catalogFromReleases(releases, f.request), current)
+  assert.equal(result[0].version, '1.10')
+  assert.equal(result[0].minAppVersion, '0.6')
+  assert.ok(result[0].release.endsWith('match-sync-v1.10'))
+})
+
+test('legacy manifests use only catalog requirements matching the exact verified ZIP', async () => {
+  const f = publishedFixture()
+  const release = f.release('1.5', undefined)
+  // Remove the field rather than using the helper default.
+  const bytes = zipSync({ 'match_sync/plugin.json': strToU8(JSON.stringify({ id: 'match_sync', version: '1.5' })) })
+  const asset = release.assets[0]
+  asset.digest = `sha256:${createHash('sha256').update(bytes).digest('hex')}`
+  f.files.set(asset.browser_download_url, bytes)
+  const catalog = { plugins: [{ id: 'match_sync', version: '1.5', min_app_version: '0.3', url: asset.browser_download_url, sha256: asset.digest.slice(7) }] }
+  const catalogAsset = { name: 'plugin-catalog.json', state: 'uploaded', browser_download_url: 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.5/plugin-catalog.json' }
+  function updateCatalog() {
+    const body = Buffer.from(JSON.stringify(catalog))
+    catalogAsset.digest = `sha256:${createHash('sha256').update(body).digest('hex')}`
+    f.files.set(catalogAsset.browser_download_url, body)
+  }
+  release.assets.push(catalogAsset)
+  updateCatalog()
+  assert.equal((await catalogFromReleases([release], f.request)).plugins[0].min_app_version, '0.3')
+  catalog.plugins[0].version = '1.4'
+  updateCatalog()
+  await assert.rejects(catalogFromReleases([release], f.request), /manifest disagrees/)
+})
+
+test('independent ZIP synchronization rejects tampered bytes, wrong manifests and unsafe assets', async () => {
+  for (const kind of ['hash', 'manifest', 'repository', 'minimum']) {
+    const f = publishedFixture()
+    const release = f.release('1.5')
+    const asset = release.assets[0]
+    if (kind === 'hash') asset.digest = `sha256:${'0'.repeat(64)}`
+    if (kind === 'repository') asset.browser_download_url = asset.browser_download_url.replace('github.com', 'example.com')
+    if (kind === 'manifest' || kind === 'minimum') {
+      const bytes = zipSync({ 'match_sync/plugin.json': strToU8(JSON.stringify({ id: 'match_sync', version: kind === 'manifest' ? '1.4' : '1.5' })) })
+      f.files.set(asset.browser_download_url, bytes)
+      asset.digest = `sha256:${createHash('sha256').update(bytes).digest('hex')}`
+    }
+    await assert.rejects(catalogFromReleases([release], f.request))
+  }
+})
 function fixture() {
   return { plugins: [{
     id: 'match_sync', version: '1.4', min_app_version: '0.5', asset_name: 'match_sync-1.4.zip',
