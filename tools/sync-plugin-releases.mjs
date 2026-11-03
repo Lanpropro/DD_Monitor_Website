@@ -1,6 +1,7 @@
 import { readFile, writeFile, access } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
+import { unzipSync } from 'fflate'
 
 const repository = 'https://github.com/Lanpropro/DD_Monitor_Plugins'
 const versionPattern = /^\d+\.\d+(?:\.\d+)?$/
@@ -66,22 +67,65 @@ export async function verifiedBytes(url, sha256, request = fetch) {
   return bytes
 }
 
+export async function catalogFromReleases(releases, request = fetch) {
+  const stable = releases.filter(release => !release.draft && !release.prerelease)
+  const catalogRelease = [...stable].sort((a, b) => (b.published_at || '').localeCompare(a.published_at || '')).find(release => release.assets?.some(asset => asset.name === 'plugin-catalog.json'))
+  let catalogEntries = []
+  if (catalogRelease) {
+    const asset = catalogRelease.assets.find(asset => asset.name === 'plugin-catalog.json')
+    if (catalogRelease.html_url !== `${repository}/releases/tag/${catalogRelease.tag_name}` || asset.state !== 'uploaded' || asset.browser_download_url !== `${repository}/releases/download/${catalogRelease.tag_name}/plugin-catalog.json` || !/^sha256:[a-f0-9]{64}$/.test(asset.digest)) throw new Error('Invalid plugin catalog asset')
+    const catalog = JSON.parse((await verifiedBytes(asset.browser_download_url, asset.digest.slice(7), request)).toString('utf8'))
+    if (!Array.isArray(catalog.plugins)) throw new Error('Missing plugin catalog entries')
+    catalogEntries = catalog.plugins
+  }
+  const selected = new Map()
+  for (const release of stable) {
+    for (const asset of release.assets || []) {
+      const match = /^([a-z][a-z0-9_]*)-(\d+\.\d+(?:\.\d+)?)\.zip$/.exec(asset.name)
+      if (!match) continue
+      const [, id, version] = match
+      if (release.html_url !== `${repository}/releases/tag/${release.tag_name}` || asset.state !== 'uploaded' || asset.browser_download_url !== `${repository}/releases/download/${release.tag_name}/${asset.name}` || !/^sha256:[a-f0-9]{64}$/.test(asset.digest)) {
+        throw new Error(`Invalid published plugin asset: ${asset.name}`)
+      }
+      const previous = selected.get(id)
+      if (!previous || compareVersions(version, previous.version) > 0) selected.set(id, { id, version, asset })
+    }
+  }
+  if (!selected.size) throw new Error('No stable plugin ZIP assets found')
+  const plugins = await Promise.all([...selected.values()].map(async ({ id, version, asset }) => {
+    const sha256 = asset.digest.slice(7)
+    const bytes = await verifiedBytes(asset.browser_download_url, sha256, request)
+    const path = `${id}/plugin.json`
+    const files = unzipSync(bytes, { filter: file => file.name === path })
+    if (!files[path]) throw new Error(`Missing plugin manifest: ${id}`)
+    const manifest = JSON.parse(new TextDecoder().decode(files[path]).replace(/^\uFEFF/, ''))
+    const matching = catalogEntries.filter(item => item.id === id && item.version === version && item.sha256 === sha256 && item.url === asset.browser_download_url)
+    const minimum = manifest.min_app_version ?? (matching.length === 1 ? matching[0].min_app_version : undefined)
+    if (manifest.id !== id || manifest.version !== version || !versionPattern.test(minimum)) {
+      throw new Error(`Plugin manifest disagrees with release asset: ${id}`)
+    }
+    return { id, version, name: manifest.name, description: manifest.description,
+      min_app_version: minimum, asset_name: asset.name, url: asset.browser_download_url, sha256 }
+  }))
+  return { plugins }
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const headers = { Accept: 'application/vnd.github+json' }
   if (process.env.GITHUB_TOKEN) headers.Authorization = `Bearer ${process.env.GITHUB_TOKEN}`
-  const response = await fetch('https://api.github.com/repos/Lanpropro/DD_Monitor_Plugins/releases/latest', {
-    headers, signal: AbortSignal.timeout(30000)
-  })
-  if (!response.ok) throw new Error(`Plugin release lookup failed: HTTP ${response.status}`)
-  const latest = await response.json()
-  const asset = latest.assets?.find(item => item.name === 'plugin-catalog.json')
-  if (latest.draft || latest.prerelease || latest.html_url !== `${repository}/releases/tag/${latest.tag_name}` || !asset || asset.state !== 'uploaded' || asset.browser_download_url !== `${repository}/releases/download/${latest.tag_name}/plugin-catalog.json` || !/^sha256:[a-f0-9]{64}$/.test(asset.digest)) {
-    throw new Error('Missing or invalid stable plugin catalog asset')
+  const releases = []
+  for (let page = 1; ; page++) {
+    const response = await fetch(`https://api.github.com/repos/Lanpropro/DD_Monitor_Plugins/releases?per_page=100&page=${page}`, {
+      headers, signal: AbortSignal.timeout(30000)
+    })
+    if (!response.ok) throw new Error(`Plugin release lookup failed: HTTP ${response.status}`)
+    const batch = await response.json()
+    releases.push(...batch)
+    if (batch.length < 100) break
   }
-  const catalog = JSON.parse((await verifiedBytes(asset.browser_download_url, asset.digest.slice(7))).toString('utf8'))
+  const catalog = await catalogFromReleases(releases)
   const file = new URL('../docs/data/plugins.json', import.meta.url)
   const result = pluginData(catalog, JSON.parse(await readFile(file, 'utf8')))
-  await Promise.all(result.map(plugin => verifiedBytes(plugin.download, plugin.sha256)))
   await ensurePluginPages(result)
   await writeFile(file, JSON.stringify(result, null, 2) + '\n')
   console.log(`Plugin releases synchronized: ${result.map(plugin => `${plugin.id} ${plugin.version}`).join(', ')}`)

@@ -2,7 +2,7 @@
   {
     "id": "domestic_live",
     "name": "国内直播平台",
-    "version": "1.4",
+    "version": "1.5",
     "category": "国内直播",
     "description": "将虎牙、斗鱼、抖音直播加入同一面画面墙。",
     "platforms": [
@@ -20,8 +20,8 @@
       "聊天弹幕同步",
       "登录拉取关注"
     ],
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/domestic-live-v1.4/domestic_live-1.4.zip",
-    "sha256": "6ad35f3e20aa6068ca640c0fdb95ae6a0cc5d22052b3fd5ac299c27207138391",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/domestic-live-v1.5/domestic_live-1.5.zip",
+    "sha256": "a2ac4d53ac0a4dfff95554b2377ef47361bee9c7458fbe0a5ac661088310b005",
     "minAppVersion": "0.3",
     "steps": [
       "添加虎牙、斗鱼或抖音直播间",
@@ -33,7 +33,7 @@
       "在设置中启用后，悬停已开播的关注卡片即可静音预览，不改变格子的画质。",
       "聊天跟随主画面，支持字号、屏蔽词与保留条数，专注普通文字与表情。"
     ],
-    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.4"
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/domestic-live-v1.5"
   },
   {
     "id": "global_live",
@@ -72,7 +72,7 @@
   {
     "id": "match_sync",
     "name": "比赛二路同步",
-    "version": "1.4",
+    "version": "1.5",
     "category": "比赛二路",
     "description": "选择比赛主画面，自动对齐多位主播直播，混合声音与合并弹幕。",
     "platforms": [
@@ -91,9 +91,9 @@
       "自动对齐比赛画面",
       "多路混音与合并弹幕"
     ],
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.4/match_sync-1.4.zip",
-    "sha256": "d1c42639ed565289d891f49bdf325f94668e4f40aca3be245c0549f426054d05",
-    "minAppVersion": "0.3",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/match-sync-v1.5/match_sync-1.5.zip",
+    "sha256": "650d7a06b430d3a8e94f3f41fe86a792490e12a84f43b20d430c877ecd0e428e",
+    "minAppVersion": "0.6",
     "steps": [
       "选择一路比赛主画面",
       "加入二路，开启自动对齐",
@@ -104,7 +104,7 @@
       "比赛主画面优先使用最高画质，在观看区中保留清晰的比赛信息。",
       "同时混合多位主播的声音，并合并带来源标记的弹幕，集中观看不同解说。"
     ],
-    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/match-sync-v1.4"
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/match-sync-v1.5"
   },
   {
     "id": "bili_live",
