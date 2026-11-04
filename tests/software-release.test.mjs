@@ -1,6 +1,19 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { releaseData } from '../tools/sync-software-release.mjs'
+import { readFileSync } from 'node:fs'
+
+test('software introduction describes monitoring and recording with a synchronized current release', () => {
+  const source = readFileSync(new URL('../docs/software.md', import.meta.url), 'utf8')
+  const html = readFileSync(new URL('../docs/.vitepress/dist/software.html', import.meta.url), 'utf8')
+  const release = JSON.parse(readFileSync(new URL('../docs/data/software-release.json', import.meta.url)))
+  for (const text of ['直播监控室', '多路录制', '比赛二路同步插件', '共同比赛画面']) assert.ok(html.includes(text))
+  assert.ok(html.includes(release.tag))
+  assert.ok(html.includes(release.release))
+  assert.ok(source.includes('{{ release.tag }}'))
+  assert.ok(!source.includes('## 0.5：'))
+  assert.ok(!source.includes('公开 v0.2 发布说明'))
+})
 
 const repository = 'https://github.com/Lanpropro/DD_Monitor_CE'
 function fixture() {
