@@ -110,7 +110,7 @@
     "id": "bili_live",
     "name": "B站直播互动",
     "description": "逐格发送弹幕、表情与直播礼物；使用本体登录。",
-    "version": "1.0",
+    "version": "1.1",
     "category": "功能扩展",
     "platforms": [
       "B 站"
@@ -129,9 +129,9 @@
       "需要 v0.5.1 或之后且包含对应宿主接口的软件构建；安装前请确认软件构建包含相应接口，详见发布说明。"
     ],
     "autoCatalog": true,
-    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/bili-live-v1.0/bili_live-1.0.zip",
-    "sha256": "b21906a82a510a12528f81b7d324a254db3761dd87a00715ea37fc8adbde4a8b",
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/bili-live-v1.1/bili_live-1.1.zip",
+    "sha256": "0afa256d970f4ddf03f24de23522555ac5dcd11ddb75e9f1372a56c88db7c992",
     "minAppVersion": "0.5.1",
-    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/bili-live-v1.0"
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/bili-live-v1.1"
   }
 ]
