@@ -11,6 +11,16 @@ import { pluginData, verifiedBytes, ensurePluginPages, catalogFromReleases } fro
 
 const current = [{ id: 'match_sync', version: '1.2', name: '比赛二路同步', features: ['自动对齐比赛画面'] }]
 
+test('Bilibili 1.1 download metadata matches the verified public release', () => {
+  const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url), 'utf8'))
+  const plugin = plugins.find(item => item.id === 'bili_live')
+  assert.equal(plugin.version, '1.1')
+  assert.equal(plugin.minAppVersion, '0.5.1')
+  assert.equal(plugin.download, 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/bili-live-v1.1/bili_live-1.1.zip')
+  assert.equal(plugin.release, 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/bili-live-v1.1')
+  assert.equal(plugin.sha256, '0afa256d970f4ddf03f24de23522555ac5dcd11ddb75e9f1372a56c88db7c992')
+})
+
 function publishedFixture() {
   const files = new Map()
   const release = (version, minimum = '0.6') => {
