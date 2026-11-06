@@ -8,6 +8,15 @@ const read = file => readFileSync(resolve(dist, file), 'utf8')
 const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
 const routes = ['', 'software', 'download', 'guide', 'plugins/', ...plugins.map(p => `plugins/${p.id}`)]
 
+test('the header GitHub icon opens the software repository on all content pages', () => {
+  for (const route of routes) {
+    const file = route === '' ? 'index.html' : route.endsWith('/') ? `${route}index.html` : `${route}.html`
+    const header = read(file).match(/<header[\s\S]*?<\/header>/)?.[0]
+    assert.ok(header?.includes('href="https://github.com/Lanpropro/DD_Monitor_CE"'), file)
+    assert.ok(!header.includes('href="https://github.com/Lanpropro/DD_Monitor_Website"'), file)
+  }
+})
+
 test('the homepage uses the exact requested search title without a repeated site suffix', () => {
   assert.equal(read('index.html').match(/<title>(.*?)<\/title>/)?.[1], 'DD 监控室 CE｜多平台直播同屏观看')
   assert.match(read('index.html'), /<meta name="description" content="[^"]*多平台直播同屏观看[^"]*"/)
