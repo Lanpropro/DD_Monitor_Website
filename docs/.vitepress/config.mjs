@@ -48,7 +48,7 @@ export default defineConfig({
     darkModeSwitchLabel: '外观',
     sidebarMenuLabel: '目录',
     returnToTopLabel: '返回顶部',
-    socialLinks: [{ icon: 'github', link: 'https://github.com/Lanpropro/DD_Monitor_Website' }],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/Lanpropro/DD_Monitor_CE' }],
     footer: {
       message: '基于 DD监控室的二次开发 · LGPL-2.1 · 平台标识仅用于来源识别',
       copyright: 'DD 监控室 CE · 软件与插件分别维护<span class="footer-contact"><span>联系我</span><a href="https://space.bilibili.com/193559518" target="_blank" rel="noopener noreferrer">B 站主页 ↗</a></span>'
