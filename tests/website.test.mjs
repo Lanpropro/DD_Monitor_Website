@@ -198,7 +198,7 @@ test('built pages preserve compatibility boundaries and real downloads', () => {
   const release = JSON.parse(read('docs/data/software-release.json'))
   assert.ok(download.includes(release.download))
   assert.ok(download.includes(release.release))
-  assert.match(release.tag, /^v\d+\.\d+(?:\.\d+)?$/)
+  assert.match(release.tag, /^v\d+\.\d+(?:\.\d+)?(?:-hotfix\.\d+)?$/)
   assert.equal(release.packageName, 'DDMonitorSetup.exe')
   assert.ok(release.download.endsWith('/DDMonitorSetup.exe'))
   assert.ok(!download.includes('下载 v0.5 便携版'))

@@ -5,7 +5,7 @@ const repository = 'https://github.com/Lanpropro/DD_Monitor_CE'
 
 export function releaseData(latest, current) {
   const tag = latest.tag_name
-  if (latest.draft || latest.prerelease || !/^v\d+\.\d+(?:\.\d+)?$/.test(tag)) throw new Error('Expected a stable software release')
+  if (latest.draft || latest.prerelease || !/^v\d+\.\d+(?:\.\d+)?(?:-hotfix\.\d+)?$/.test(tag)) throw new Error('Expected a stable software release')
   if (latest.html_url !== `${repository}/releases/tag/${tag}`) throw new Error('Unexpected release repository')
   const publishedOn = latest.published_at?.slice(0, 10)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(publishedOn)) throw new Error('Missing publication date')
