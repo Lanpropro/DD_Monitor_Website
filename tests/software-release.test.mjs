@@ -39,6 +39,19 @@ test('a new stable release needs only the installer and updates its date and che
   assert.deepEqual(result.legacyPackage, legacyPackage)
 })
 
+test('a published hotfix release synchronizes its exact installer URL', () => {
+  const data = fixture()
+  const tag = 'v0.7.2-hotfix.2'
+  data.tag_name = tag
+  data.html_url = `${repository}/releases/tag/${tag}`
+  data.assets[0].browser_download_url = `${repository}/releases/download/${tag}/DDMonitorSetup.exe`
+  const result = releaseData(data, {})
+  assert.equal(result.tag, tag)
+  assert.equal(result.download, data.assets[0].browser_download_url)
+  data.prerelease = true
+  assert.throws(() => releaseData(data, {}))
+})
+
 test('drafts, prereleases and incomplete or untrusted assets cannot be published', () => {
   for (const mutate of [
     data => { data.draft = true },
