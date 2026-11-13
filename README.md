@@ -11,7 +11,7 @@ DD 监控室 CE 的软件介绍、插件展示与下载网站，使用 VitePress
 需要 Node.js 22 或更高版本。首次运行安装依赖：
 
 ```powershell
-cd F:\CodexAppManager\Code\DD_Monitor_Website
+cd DD_Monitor_Website
 npm ci
 npm run dev
 ```
@@ -44,7 +44,7 @@ npm test
 CI 自动构建并运行测试；GitHub Pages 支持手动发布，并每6小时同步最新正式软件 Release 后构建、测试和发布，具体见 [部署说明](WEBSITE.md)。
 插件和软件安装包继续从原仓库 Releases 下载，本仓库不保存插件源码和账号配置。
 
-迁移记录见 [MIGRATION.md](MIGRATION.md)，开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，素材来源见 [ASSETS.md](docs/public/ASSETS.md)。
+迁移记录见 [MIGRATION.md](MIGRATION.md)，开发文档入口见 [development/](development/README.md)，开发流程见 [CONTRIBUTING.md](CONTRIBUTING.md)，素材来源见 [ASSETS.md](docs/public/ASSETS.md)。
 保留原项目 [LGPL-2.1 许可](LICENSE)。第三方截图、直播画面和平台标识的权利归各自权利人。
 
 ## 自定义域名部署

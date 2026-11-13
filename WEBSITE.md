@@ -1,6 +1,6 @@
 # 网站构建与发布
 
-网站已独立到 `Lanpropro/DD_Monitor_Website`，本地目录为 `F:/CodexAppManager/Code/DD_Monitor_Website`。
+网站已独立到 `Lanpropro/DD_Monitor_Website`，本仓库即网站源码仓库；开发文档入口见[development/](development/README.md)。
 
 ## GitHub Pages
 
