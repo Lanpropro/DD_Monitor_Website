@@ -36,7 +36,7 @@
 - 软件下载信息来自 [DD_Monitor_CE](https://github.com/Lanpropro/DD_Monitor_CE) 的正式 Release；
   插件下载信息来自 [DD_Monitor_Plugins](https://github.com/Lanpropro/DD_Monitor_Plugins) 的正式 Release。
 - SHA-256 必须来自公开附件；本机重新构建的哈希不能替代。
-- 自动同步只更新构建数据，不回写源码分支；人工文案（页面、插件介绍、更新记录）仍通过 PR 修改。
+- 自动同步更新构建数据，新插件会生成基础详情页；工作流不回写源码分支。人工文案（页面、插件介绍、更新记录）仍通过 PR 修改。
 - 同步失败时保留现有站点，不发布半更新数据；拒绝版本回退、非官方地址和清单不符。
 - 不在仓库中保存插件源码、账号、Cookie、令牌或临时预览凭证。
 

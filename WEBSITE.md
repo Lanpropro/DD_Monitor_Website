@@ -4,15 +4,14 @@
 
 ## GitHub Pages
 
-当前部署基路径为 `/DD_Monitor_Website/`，上线后的项目网址为：
-https://lanpropro.github.io/DD_Monitor_Website/
+本地开发与预览默认使用 `/DD_Monitor_Website/` 基路径；Pages 部署工作流设置 `SITE_BASE: /`，按根路径构建正式域名站点。部署结果以工作流返回的地址和线上核对为准。
 
 1. 在网站仓库 Settings → Pages 中把 Source 选择为 GitHub Actions。
 2. 在 Actions 中打开 Deploy website to Pages，选择 `main` 并手动运行。
 3. 构建与测试通过后发布 `docs/.vitepress/dist/`。以工作流返回的网址及成功状态确认上线。
 
 迁移本身只创建源码仓库及部署配置，不自动执行公开发布。
-CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动触发，并每6小时检查软件仓库的最新正式 Release，更新构建中的版本数据后发布到 `https://ddmonitor.top/`。GitHub 定时任务可能延迟，长期无活动也可能停用；需要立即更新时可手动运行。
+CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动触发，并每 6 小时检查软件及插件仓库的正式 Release，更新构建中的版本数据后部署到正式域名。GitHub 定时任务可能延迟，长期无活动也可能停用；需要立即更新时可手动运行。
 
 同步脚本为 `tools/sync-software-release.mjs`，使用 Actions 自带的只读 `GITHUB_TOKEN` 读取公开发布信息，不需要额外跨仓库凭证。Setup 安装器必须已上传并提供 SHA256，且地址属于官方软件仓库；缺少资产或校验值时失败并保留现有站点。同步只更新本次构建的数据，不提交回源码分支。版本专属功能介绍仍按 PR 流程维护。
 
@@ -20,14 +19,13 @@ CI 对 main/develop 的推送与 PR 执行验证。Pages 工作流支持手动�
 
 同一 Pages 工作流也运行 `node tools/sync-plugin-releases.mjs`，分页读取插件仓库的正式 Releases，按每个插件的版本号选择最新 ZIP。ZIP 必须提供 GitHub SHA256，下载校验通过后读取包内 `<插件ID>/plugin.json` 的版本和最低软件版本；不执行或解压插件代码到磁盘。拒绝版本回退、清单不符和非官方地址，任一验证失败则不发布。旧 ZIP 若没有 `min_app_version`，仅允许从已校验目录中使用与该 ZIP 的 ID、版本、地址和 SHA256 全部一致的条目补充，不能沿用旧版本要求。
 
-发布插件时上传 `<插件ID>-<版本>.zip`，包内清单应声明 ID、版本、最低软件版本；不再要求每个正式 Release 都携带汇总 `plugin-catalog.json`。新插件通过校验后自动加入滚动列表、插件目录、兼容性表及侧栏，并创建基础详情页。已有人工文案保留。网站每6小时检查一次，非即时发布回调；需要立即更新可手动运行 Deploy website to Pages。同步仅修改构建数据，不回写源码分支；本地可运行同一脚本更新版本基线。
+发布插件时上传 `<插件ID>-<版本>.zip`，包内清单应声明 ID、版本、最低软件版本；不再要求每个正式 Release 都携带汇总 `plugin-catalog.json`。新插件通过校验后自动加入滚动列表、插件目录、兼容性表及侧栏，并创建基础详情页。已有人工文案保留。网站每6小时检查一次，非即时发布回调；需要立即更新可手动运行 Deploy website to Pages。同步更新本次构建的数据，新插件还会生成基础详情页；工作流不回写源码分支，本地运行后需检查新增页面和数据差异。
 
 详情页下载区的版本与“发布说明”链接随目录自动同步；下方手写更新记录保留人工整理的历史，不要求每次发布先改网页文案。验证应检查同步后的下载区与目录一致，不能以手写记录尚未包含新版本阻止自动发布。
 
 ## 自定义域名
 
-以后绑定独立域名时，将 config.mjs 的 base 改为 `/` 并同步修改 favicon 路径与测试中的 base；
-再配置 Pages 自定义域名、DNS 与 HTTPS。本次迁移不购买域名、不改 DNS。
+正式构建通过 Pages 工作流的 `SITE_BASE: /` 使用根路径；本地核对正式域名构建时可设置 `$env:SITE_BASE='/'`。`docs/.vitepress/config.mjs` 保留 `/DD_Monitor_Website/` 作为未设置环境变量时的本地预览默认值。域名、DNS 与 HTTPS 的实际状态以上线检查为准。
 
 ## 搜索引擎收录
 

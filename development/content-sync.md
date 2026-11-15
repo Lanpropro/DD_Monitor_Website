@@ -48,7 +48,7 @@ node tools/sync-software-release.mjs
 node tools/sync-plugin-releases.mjs
 ```
 
-同步只更新构建数据，不回写源码分支；本地运行后检查 `docs/data/plugins.json` 的差异再提交。
+同步更新 `docs/data/plugins.json`，新增插件时还会创建 `docs/plugins/<ID>.md` 的基础详情页；工作流不回写源码分支。本地运行后同时检查数据与新增页面的差异再提交。
 
 ## 4. 人工维护的内容
 
