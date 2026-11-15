@@ -2,10 +2,20 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { pathToFileURL } from 'node:url'
 
 const repository = 'https://github.com/Lanpropro/DD_Monitor_CE'
+const versionPattern = /^v(\d+)\.(\d+)(?:\.(\d+))?(?:-hotfix\.(\d+))?$/
 
 export function releaseData(latest, current) {
   const tag = latest.tag_name
-  if (latest.draft || latest.prerelease || !/^v\d+\.\d+(?:\.\d+)?(?:-hotfix\.\d+)?$/.test(tag)) throw new Error('Expected a stable software release')
+  const version = versionPattern.exec(tag)
+  if (latest.draft || latest.prerelease || !version) throw new Error('Expected a stable software release')
+  const previous = versionPattern.exec(current.tag ?? '')
+  if (previous) {
+    const parts = match => [Number(match[1]), Number(match[2]), Number(match[3] ?? 0), Number(match[4] ?? 0)]
+    const nextParts = parts(version)
+    const previousParts = parts(previous)
+    const lower = nextParts.findIndex((part, index) => part !== previousParts[index])
+    if (lower !== -1 && nextParts[lower] < previousParts[lower]) throw new Error('Software version would decrease')
+  }
   if (latest.html_url !== `${repository}/releases/tag/${tag}`) throw new Error('Unexpected release repository')
   const publishedOn = latest.published_at?.slice(0, 10)
   if (!/^\d{4}-\d{2}-\d{2}$/.test(publishedOn)) throw new Error('Missing publication date')

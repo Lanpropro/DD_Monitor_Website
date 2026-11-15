@@ -24,6 +24,7 @@
 `tools/sync-software-release.mjs`：
 
 - 读取 `releases/latest`，拒绝草稿、预发布和非稳定标签；
+- 与当前保存的标签比较，拒绝旧版本；同版本可重新同步已核验的正式附件；
 - 要求 `DDMonitorSetup.exe` 已上传，地址属于官方 Release，并提供 GitHub 计算的 `sha256`；
 - 写入版本标签、发布日期、下载地址、安装包名、发布页与 SHA-256；
 - 找不到资产或校验值时失败，保留现有数据。
