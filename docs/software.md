@@ -85,12 +85,8 @@ B 站直播由本体提供，支持扫码登录与关注导入。虎牙、斗鱼
 
 | 插件 | 支持平台 | 主要功能 |
 | --- | --- | --- |
-| [虎牙直播](/plugins/huya_live) | 虎牙 | 播放、画质、登录关注与弹幕互动 |
-| [斗鱼直播](/plugins/douyu_live) | 斗鱼 | 播放、关注、弹幕与礼物互动 |
-| [抖音直播](/plugins/douyin_live) | 抖音 | 播放、登录关注、实验性官网输入 |
-| [Twitch直播](/plugins/twitch_live) | Twitch | 公开直播、画质、账号关注与聊天 |
-| [YouTube直播](/plugins/youtube_live) | YouTube | 公开直播、账号关注、高画质播放 |
-| [CHZZK直播](/plugins/chzzk_live) | CHZZK | 公开直播、状态与画质；不含登录与聊天 |
+| [国内直播平台](/plugins/domestic_live#下载选择) | 虎牙、斗鱼、抖音 | 选择对应平台插件，独立安装与更新 |
+| [海外直播平台](/plugins/global_live#下载选择) | Twitch、YouTube、CHZZK | 选择对应平台插件，能力以各平台说明为准 |
 | [比赛二路同步](/plugins/match_sync) | B 站及已接入的平台 | 比赛画面对齐、多路混音与合并弹幕 |
 | [B站直播互动](/plugins/bili_live) | B 站 | 弹幕、表情与直播礼物互动 |
 | [B站稍后再看](/plugins/bili_watchlater) | B 站 | 点播入墙、字幕、历史弹幕与进度控制 |

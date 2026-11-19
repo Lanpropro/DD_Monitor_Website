@@ -50,6 +50,8 @@ node tools/sync-plugin-releases.mjs
 
 同步更新 `docs/data/plugins.json`，新增插件时还会创建 `docs/plugins/<ID>.md` 的基础详情页；工作流不回写源码分支。本地运行后同时检查数据与新增页面的差异再提交。
 
+首页、目录与侧栏通过 `docs/data/plugin-display.mjs` 将六个独立平台归入国内／海外两组；真实版本和包地址仍由 `plugins.json` 同步维护。汇总详情页的下载选择区直接读取独立包数据，不能用旧组合包版本代表整组平台。
+
 ## 4. 人工维护的内容
 
 以下内容不会被同步覆盖：

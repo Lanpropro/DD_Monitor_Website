@@ -1,5 +1,5 @@
 import { defineConfig } from 'vitepress'
-import plugins from '../data/plugins.json' with { type: 'json' }
+import { displayPlugins as plugins } from '../data/plugin-display.mjs'
 
 const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 const hostname = 'https://ddmonitor.top'
