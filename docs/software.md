@@ -10,7 +10,7 @@ import release from './data/software-release.json'
 
 DD 监控室 CE 是面向 Windows 的开源直播监控室。在同一个窗口中播放多路直播、查看主播开播状态，并同时录制需要保留的直播画面，方便后续回看与制作切片。B 站直播原生支持，其他平台通过独立插件扩展。
 
-它主要服务于多路直播的日常监控与录制。如果只是想看直播，也可以将它当作一个集中观看的地方，关注不同平台的主播时，不必反复切换网页，并且软件的占用相较于正常使用网页或者electron架构的软件会低不少。
+它主要服务于多路直播的日常监控与录制。如果只是想看直播，也可以将它当作一个集中观看的地方，关注不同平台的主播时，不必反复切换网页，可以按自己的习惯安排画面、声音和录制。
 
 <p>当前公开版本为 <strong>{{ release.tag }}</strong>。<a :href="release.release">查看最新发布说明</a>。</p>
 
@@ -36,9 +36,19 @@ DD 监控室 CE 是面向 Windows 的开源直播监控室。在同一个窗口�
 
 ## 不同平台，放在一起观看
 
-B 站直播由本体提供，也支持扫码登录与关注导入。虎牙、斗鱼、抖音通过国内直播平台插件接入，Twitch 与 YouTube 通过海外直播平台插件接入。
+B 站直播由本体提供，支持扫码登录与关注导入。虎牙、斗鱼、抖音、Twitch、YouTube 和 CHZZK 分别通过独立平台插件接入。0.8 用户请先安装同一 Release 中的最新安装器（热修复 1），再按需安装平台插件；新插件沿用原有关注、账号及分组，按声明迁移对应设置。旧组合包仍可提供尚未被独立插件接管的平台。
 
 添加后，这些直播间都可以放进同一面画面墙。平台插件独立安装、独立启用，按自己的观看需求选择即可。账号权限、直播画质与网络访问仍以各平台的实际支持为准。[浏览平台插件](/plugins/)。
+
+## 0.8：从监控到回看
+
+批量粘贴直播间链接，按平台导入账号关注，用文件夹、搜索和开播状态筛选整理主播。在「主播独立设置」中保存默认播放画质、录制画质和音量，上墙时应用预设，当次临时调整单独生效。
+
+画面墙全局菜单可统一调整声音、画质和弹幕；画中画支持与主窗口同时播放，独立选择房间和音量。弹幕栏也能浮出为单独窗口，按自己的屏幕空间摆放。
+
+录制与即时回放分别设置。除了多路录制，还可以保存最近数分钟的回放；关闭主窗口时选择隐藏到托盘，继续播放与录制。
+
+安装[B站稍后再看](/plugins/bili_watchlater)后，可复用本体登录浏览视频，将点播内容放进画面墙，使用分P、字幕、历史弹幕与进度控制。该插件需要 0.8 热修复 1 的接口。
 
 ## 想听多位主播解说，再开启比赛二路
 
@@ -75,10 +85,16 @@ B 站直播由本体提供，也支持扫码登录与关注导入。虎牙、斗
 
 | 插件 | 支持平台 | 主要功能 |
 | --- | --- | --- |
-| [国内直播平台](/plugins/domestic_live) | 虎牙、斗鱼、抖音 | 格子播放、实际画质、静音预览、聊天弹幕 |
-| [海外直播平台](/plugins/global_live) | Twitch、YouTube | 格子播放、自动画质、静音预览、聊天弹幕 |
+| [虎牙直播](/plugins/huya_live) | 虎牙 | 播放、画质、登录关注与弹幕互动 |
+| [斗鱼直播](/plugins/douyu_live) | 斗鱼 | 播放、关注、弹幕与礼物互动 |
+| [抖音直播](/plugins/douyin_live) | 抖音 | 播放、登录关注、实验性官网输入 |
+| [Twitch直播](/plugins/twitch_live) | Twitch | 公开直播、画质、账号关注与聊天 |
+| [YouTube直播](/plugins/youtube_live) | YouTube | 公开直播、账号关注、高画质播放 |
+| [CHZZK直播](/plugins/chzzk_live) | CHZZK | 公开直播、状态与画质；不含登录与聊天 |
 | [比赛二路同步](/plugins/match_sync) | B 站及已接入的平台 | 比赛画面对齐、多路混音与合并弹幕 |
-| [B站直播互动](/plugins/bili_live) | B 站 | 弹幕、表情与直播礼物互动，需配套软件 |
+| [B站直播互动](/plugins/bili_live) | B 站 | 弹幕、表情与直播礼物互动 |
+| [B站稍后再看](/plugins/bili_watchlater) | B 站 | 点播入墙、字幕、历史弹幕与进度控制 |
+| [网络代理](/plugins/proxy_control) | 软件网络 | 导入自备订阅或节点，按需启停代理 |
 
 平台插件与比赛二路同步分别启用，版本独立维护。建议先安装最新公开版软件，再按插件说明安装。[查看插件列表](/plugins/)。
 
@@ -88,4 +104,4 @@ B 站直播由本体提供，也支持扫码登录与关注导入。虎牙、斗
 
 - [软件源码与完整说明](https://github.com/Lanpropro/DD_Monitor_CE)
 - [软件问题反馈](https://github.com/Lanpropro/DD_Monitor_CE/issues)
-- [LGPL-2.1 许可](https://github.com/Lanpropro/DD_Monitor_CE/blob/main/LICENSE)与[第三方声明](https://github.com/Lanpropro/DD_Monitor_CE/blob/main/NOTICE.md)
+- [LGPL-2.1 许可](https://github.com/Lanpropro/DD_Monitor_CE/blob/main/LICENSE)与[第三方声明](https://github.com/Lanpropro/DD_Monitor_CE/blob/main/docs/NOTICE.md)

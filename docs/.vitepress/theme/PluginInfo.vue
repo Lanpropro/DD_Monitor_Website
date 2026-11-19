@@ -13,7 +13,7 @@ const plugin = computed(() => plugins.find(p => p.id === props.id))
       <span class="version">v{{ plugin.version }}</span></div>
     <h2 v-if="plugin.autoCatalog">{{ plugin.name }}</h2>
     <p>{{ plugin.description }}</p>
-    <p>插件 ID：<code>{{ plugin.id }}</code> · 支持 {{ plugin.platforms.join('、') }}</p>
+    <p>插件 ID：<code>{{ plugin.id }}</code><span v-if="plugin.platforms.length"> · 支持 {{ plugin.platforms.join('、') }}</span></p>
     <div class="card-actions"><a class="action primary" :href="plugin.download">下载 v{{ plugin.version }} ZIP</a>
       <a class="action secondary" :href="plugin.release">发布说明</a>
       <a class="action secondary" :href="`https://github.com/Lanpropro/DD_Monitor_Plugins/tree/main/plugins/${plugin.id}`">插件源码</a></div>
