@@ -69,14 +69,14 @@ export async function verifiedBytes(url, sha256, request = fetch) {
 
 export async function catalogFromReleases(releases, request = fetch) {
   const stable = releases.filter(release => !release.draft && !release.prerelease)
-  const catalogRelease = [...stable].sort((a, b) => (b.published_at || '').localeCompare(a.published_at || '')).find(release => release.assets?.some(asset => asset.name === 'plugin-catalog.json'))
-  let catalogEntries = []
-  if (catalogRelease) {
+  const catalogReleases = [...stable].sort((a, b) => (b.published_at || '').localeCompare(a.published_at || '')).filter(release => release.assets?.some(asset => asset.name === 'plugin-catalog.json'))
+  const catalogEntries = []
+  for (const catalogRelease of catalogReleases) {
     const asset = catalogRelease.assets.find(asset => asset.name === 'plugin-catalog.json')
     if (catalogRelease.html_url !== `${repository}/releases/tag/${catalogRelease.tag_name}` || asset.state !== 'uploaded' || asset.browser_download_url !== `${repository}/releases/download/${catalogRelease.tag_name}/plugin-catalog.json` || !/^sha256:[a-f0-9]{64}$/.test(asset.digest)) throw new Error('Invalid plugin catalog asset')
     const catalog = JSON.parse((await verifiedBytes(asset.browser_download_url, asset.digest.slice(7), request)).toString('utf8'))
     if (!Array.isArray(catalog.plugins)) throw new Error('Missing plugin catalog entries')
-    catalogEntries = catalog.plugins
+    catalogEntries.push(...catalog.plugins)
   }
   const selected = new Map()
   for (const release of stable) {
@@ -100,7 +100,7 @@ export async function catalogFromReleases(releases, request = fetch) {
     if (!files[path]) throw new Error(`Missing plugin manifest: ${id}`)
     const manifest = JSON.parse(new TextDecoder().decode(files[path]).replace(/^\uFEFF/, ''))
     const matching = catalogEntries.filter(item => item.id === id && item.version === version && item.sha256 === sha256 && item.url === asset.browser_download_url)
-    const minimum = manifest.min_app_version ?? (matching.length === 1 ? matching[0].min_app_version : undefined)
+    const minimum = manifest.min_app_version ?? matching[0]?.min_app_version
     if (manifest.id !== id || manifest.version !== version || !versionPattern.test(minimum)) {
       throw new Error(`Plugin manifest disagrees with release asset: ${id}`)
     }
