@@ -90,7 +90,7 @@ onUnmounted(() => {
       <div class="section-heading"><div data-reveal><p class="eyebrow">02 / 插件扩展</p><h2 id="plugins-title">让直播墙，多一点可能。</h2></div><a data-reveal data-reveal-delay="120" :href="withBase('/plugins/')">全部插件与安装说明 ↗</a></div>
       <PluginCarousel :initial-index="2" v-slot="{ duplicate }" data-reveal><article v-for="(plugin, i) in plugins" :key="plugin.id" class="home-plugin-card" :class="{ 'is-selected': previewPlugin === i }">
         <div class="card-top"><div class="platform-icons"><img v-for="(icon, j) in plugin.icons" :key="icon" :src="withBase('/platforms/' + icon)" :alt="plugin.platforms[j]" width="32" height="32" loading="lazy" /></div><span class="version">v{{ plugin.version }}</span></div>
-        <span class="plugin-category">0{{ i + 1 }} / {{ plugin.category }}</span>
+        <span class="plugin-category">{{ String(i + 1).padStart(2, '0') }} / {{ plugin.category }}</span>
         <h3><a :tabindex="duplicate ? -1 : undefined" :href="withBase('/plugins/' + plugin.id)">{{ plugin.name }}</a></h3><p>{{ plugin.description }}</p>
         <div class="platform-tags"><span v-for="platform in plugin.platforms" :key="platform">{{ platform }}</span></div>
         <ul><li v-for="feature in plugin.features" :key="feature">{{ feature }}</li></ul>

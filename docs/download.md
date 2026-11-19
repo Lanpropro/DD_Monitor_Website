@@ -27,13 +27,15 @@ import { withBase } from 'vitepress'
 
 安装器支持创建快捷方式及卸载。[安装与启动帮助](/guide#启动软件)。
 
+0.8 用户请使用本次 Release 中的最新安装器，包含热修复 1；版本仍显示 0.8，内部修订号为 1。原始 0.8 的独立平台商店识别和稍后再看接口不完整，可覆盖升级并保留配置。
+
 ## 插件兼容性
 
 建议先将软件升级到最新公开版，再安装插件。各插件的最低软件版本见下表，还需要配套软件提供相应功能与运行库。
 
 <table>
 <thead><tr><th>插件</th><th>下载版本</th><th>最低软件版本</th><th>使用要求</th></tr></thead>
-<tbody><tr v-for="plugin in plugins" :key="plugin.id"><td><a :href="withBase('/plugins/' + plugin.id)">{{ plugin.name }}</a></td><td>{{ plugin.version }}</td><td>{{ plugin.minAppVersion }}</td><td>{{ plugin.id === 'match_sync' ? '比赛同步接口、PyAV、NumPy、FFmpeg' : plugin.autoCatalog ? '安装前查看插件发布说明中的宿主接口与使用要求' : '平台取流、画质与弹幕接口，FFmpeg' }}</td></tr></tbody>
+<tbody><tr v-for="plugin in plugins" :key="plugin.id"><td><a :href="withBase('/plugins/' + plugin.id)">{{ plugin.name }}</a></td><td>{{ plugin.version }}</td><td>{{ plugin.minAppVersion }}</td><td>{{ plugin.id === 'bili_watchlater' ? '0.8 热修复 1；共享拖影与实时弹幕来源接口' : plugin.id === 'proxy_control' ? '自备订阅或节点；首次内核准备需联网' : plugin.minAppVersion === '0.8' ? '先升级至 0.8 热修复 1；按平台安装' : plugin.id === 'match_sync' ? '比赛同步接口、PyAV、NumPy、FFmpeg' : '查看插件发布说明中的接口与使用要求' }}</td></tr></tbody>
 </table>
 
 v0.5 将播放内核升级为 libmpv，增加编解码与硬件录制设置、Qt Quick 弹幕绘制、通知中心及 B 站弹幕发送。旧 v0.2 用户首次需手动升级软件，之后可使用配套版本提供的更新功能。新插件依赖的后续改进，以对应插件发布页的要求为准。
@@ -52,6 +54,6 @@ v0.5 将播放内核升级为 libmpv，增加编解码与硬件录制设置、Qt
 
 需要 Python 3.10+、libmpv 运行库、FFmpeg，以及当前软件仓库 `requirements.txt` 中的依赖。比赛同步还需要 PyAV 与 NumPy。
 
-[打开软件源码与完整安装说明](https://github.com/Lanpropro/DD_Monitor_CE#快速开始)
+[打开软件源码与完整安装说明](https://github.com/Lanpropro/DD_Monitor_CE)
 
 GitHub 附件下载速度取决于网络环境。下载异常时打开官方发布页重试，避免使用来源不明的重打包文件。

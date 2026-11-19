@@ -67,6 +67,31 @@ test('legacy manifests use only catalog requirements matching the exact verified
   await assert.rejects(catalogFromReleases([release], f.request), /manifest disagrees/)
 })
 
+test('legacy requirements survive a later catalog pointing to a different ZIP with the same version', async () => {
+  const f = publishedFixture()
+  const release = f.release('1.2', undefined)
+  // This legacy package intentionally omits the minimum version.
+  const bytes = zipSync({ 'match_sync/plugin.json': strToU8(JSON.stringify({ id: 'match_sync', version: '1.2' })) })
+  const asset = release.assets[0]
+  asset.digest = `sha256:${createHash('sha256').update(bytes).digest('hex')}`
+  f.files.set(asset.browser_download_url, bytes)
+  function catalog(tag, published, entry) {
+    const body = Buffer.from(JSON.stringify({ plugins: [entry] }))
+    const url = `https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/${tag}/plugin-catalog.json`
+    f.files.set(url, body)
+    return { tag_name: tag, html_url: `https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/${tag}`,
+      published_at: published, assets: [{ name: 'plugin-catalog.json', state: 'uploaded', browser_download_url: url,
+        digest: `sha256:${createHash('sha256').update(body).digest('hex')}` }] }
+  }
+  const entry = { id: 'match_sync', version: '1.2', min_app_version: '0.3', url: asset.browser_download_url, sha256: asset.digest.slice(7) }
+  const original = catalog('original', '2026-11-01', entry)
+  const later = catalog('later', '2026-11-02', { ...entry, url: entry.url.replace('match-sync-v1.2', 'later'), sha256: 'b'.repeat(64) })
+  const result = await catalogFromReleases([later, release, original], f.request)
+  assert.equal(result.plugins[0].min_app_version, '0.3')
+  assert.equal(result.plugins[0].url, asset.browser_download_url)
+  await assert.rejects(catalogFromReleases([later, release], f.request), /manifest disagrees/)
+})
+
 test('independent ZIP synchronization rejects tampered bytes, wrong manifests and unsafe assets', async () => {
   for (const kind of ['hash', 'manifest', 'repository', 'minimum']) {
     const f = publishedFixture()
@@ -188,6 +213,17 @@ test('release catalog and ZIP bytes require successful HTTP responses and matchi
   assert.deepEqual(await verifiedBytes('https://example.com/asset', sha256, ok), bytes)
   await assert.rejects(verifiedBytes('https://example.com/asset', '0'.repeat(64), ok), /checksum mismatch/)
   await assert.rejects(verifiedBytes('https://example.com/asset', sha256, async () => new Response('', { status: 404 })), /HTTP 404/)
+})
+
+test('current platform split and host requirements are visible across the website', () => {
+  const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
+  for (const id of ['huya_live', 'douyu_live', 'douyin_live', 'twitch_live', 'youtube_live', 'chzzk_live', 'bili_watchlater', 'proxy_control']) assert.ok(plugins.some(p => p.id === id), id)
+  const read = page => readFileSync(new URL(`../docs/.vitepress/dist/${page}.html`, import.meta.url), 'utf8')
+  assert.ok(read('guide').includes('数据与存储'))
+  assert.ok(read('plugins/bili_watchlater').includes('原始 0.8'))
+  assert.ok(read('plugins/bili_watchlater').includes('热修复 1'))
+  assert.ok(read('software').includes('即时回放'))
+  assert.ok(read('software').includes('与主窗口同时播放'))
 })
 
 test('the built homepage, catalog, download table and details share the published plugin data', () => {
