@@ -978,7 +978,7 @@ test('plugin carousel renders downloads and keeps duplicate copies out of keyboa
 test('dragging the full-card selection button does not activate a plugin', () => {
   const page = mountPluginCarousel(), s = page.state
   const event = { pointerType: 'mouse', button: 0, pointerId: 1, clientX: 500, target: { closest: selector => {
-    assert.equal(selector, 'a,button:not(.plugin-demo-trigger)')
+    assert.equal(selector, 'a:not(.plugin-demo-trigger),button:not(.plugin-demo-trigger)')
     return null
   } } }
   let prevented = 0, stopped = 0
@@ -991,6 +991,33 @@ test('dragging the full-card selection button does not activate a plugin', () =>
   s.onClickCapture(click); assert.equal(prevented, 1, 'keyboard activation must remain available')
   s.onPointerDown(event); s.onPointerMove({ pointerId: 1, clientX: 400 }); s.onPointerUp({ ...event, type: 'pointercancel' })
   s.onClickCapture(click); assert.equal(prevented, 1, 'a canceled gesture must not block the next keyboard activation')
+  page.unmount()
+})
+
+test('platform card links remain draggable after the carousel wraps and clicks still navigate', () => {
+  const page = mountPluginCarousel(), s = page.state
+  const overlayLink = { closest: selector => {
+    // A full-card anchor must be allowed to start a drag, unlike action links.
+    assert.equal(selector, 'a:not(.plugin-demo-trigger),button:not(.plugin-demo-trigger)')
+    return null
+  } }
+  const pointer = { pointerType: 'mouse', button: 0, pointerId: 1, clientX: 500, target: overlayLink }
+  for (let turn = 0; turn < 2; turn++) {
+    page.element.scrollLeft = 2064 + 20
+    s.normalize()
+    const before = page.element.scrollLeft
+    s.onPointerDown(pointer)
+    s.onPointerMove({ pointerId: 1, clientX: 350 })
+    assert.equal(page.element.scrollLeft, before + 150)
+    s.onPointerUp(pointer)
+    let blocked = false
+    s.onClickCapture({ preventDefault() { blocked = true }, stopPropagation() {} })
+    assert.ok(blocked, 'dragging the full-card link must not open its download page')
+  }
+  let blocked = false
+  s.onPointerDown(pointer); s.onPointerUp(pointer)
+  s.onClickCapture({ preventDefault() { blocked = true }, stopPropagation() {} })
+  assert.equal(blocked, false, 'a simple click must still open the platform selection page')
   page.unmount()
 })
 
