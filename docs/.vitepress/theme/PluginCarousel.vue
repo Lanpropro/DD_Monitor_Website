@@ -61,7 +61,7 @@ function step(direction) {
 function onPointerDown(event) {
   suppressClick = false
   if (event.pointerType !== 'mouse') { touching = true; sync(); return }
-  if (event.button !== 0 || event.target.closest('a,button:not(.plugin-demo-trigger)')) return
+  if (event.button !== 0 || event.target.closest('a:not(.plugin-demo-trigger),button:not(.plugin-demo-trigger)')) return
   pointer = { id: event.pointerId, x: event.clientX, left: viewport.value.scrollLeft }
   sync()
 }
