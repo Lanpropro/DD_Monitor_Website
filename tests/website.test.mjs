@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { resolve, relative, dirname } from 'node:path'
 import { runInNewContext } from 'node:vm'
+import { displayPlugins, platformGroups } from '../docs/data/plugin-display.mjs'
 import { createAppearanceToggle } from '../docs/.vitepress/theme/appearance.mjs'
 import { TOUR_CHAPTERS, TOUR_DURATION, viewingTourFrame } from '../docs/.vitepress/theme/viewing-tour.mjs'
 
@@ -210,7 +211,7 @@ test('built pages preserve compatibility boundaries and real downloads', () => {
   assert.ok(download.includes(release.sha256))
   for (const module of release.legacyPackage.packageInspection.missing_modules) assert.ok(download.includes(module))
   const catalog = readFileSync(resolve(dist, 'plugins/index.html'), 'utf8')
-  for (const p of plugins) assert.ok(catalog.includes(p.download))
+  for (const p of displayPlugins) assert.ok(catalog.includes(p.platformPlugins ? `${base}plugins/${p.id}#下载选择` : p.download))
   assert.ok(catalog.includes('Source code ZIP'))
 })
 
@@ -245,8 +246,8 @@ test('homepage exposes software and every plugin download before JavaScript runs
   const release = JSON.parse(read('docs/data/software-release.json'))
   assert.ok(home.includes(release.download))
   assert.ok(home.includes(`${release.tag} 已发布`))
-  for (const plugin of plugins) {
-    assert.ok(home.includes(plugin.download), `missing homepage download: ${plugin.id}`)
+  for (const plugin of displayPlugins) {
+    assert.ok(home.includes(plugin.platformPlugins ? `${base}plugins/${plugin.id}#下载选择` : plugin.download), `missing homepage download: ${plugin.id}`)
     assert.ok(home.includes(plugin.name), `missing homepage plugin: ${plugin.id}`)
     assert.ok(home.includes(`${base}plugins/${plugin.id}`))
   }
@@ -390,6 +391,10 @@ test('the plugin catalog escapes the narrow documentation column', () => {
 test('plugin details keep manual history separate from synchronized current releases', () => {
   for (const p of plugins) {
     const page = read(`docs/plugins/${p.id}.md`)
+    if (platformGroups[p.id]) {
+      assert.ok(page.includes(`<PlatformDownloads group="${p.id}" />`))
+      continue
+    }
     const history = page.split('## 更新记录')[1]
     if (p.autoCatalog) {
       assert.ok(page.includes(`<PluginInfo id="${p.id}" />`))
@@ -959,14 +964,14 @@ test('plugin carousel renders downloads and keeps duplicate copies out of keyboa
   assert.ok(home.includes('aria-label="下一个插件"'))
   assert.equal((home.match(/class="carousel-group"/g) || []).length, 3)
   assert.equal((home.match(/class="carousel-group" aria-hidden="true"/g) || []).length, 2)
-  assert.equal((home.match(/class="[^"]*\bhome-plugin-card\b[^"]*"/g) || []).length, plugins.length * 3)
+  assert.equal((home.match(/class="[^"]*\bhome-plugin-card\b[^"]*"/g) || []).length, displayPlugins.length * 3)
   for (const copy of home.split('<div class="carousel-group"').slice(1)) {
     if (!copy.startsWith(' aria-hidden="true"')) continue
     const cards = copy.match(/<article class="[^"]*\bhome-plugin-card\b[^"]*"[\s\S]*?<\/article>/g)
-    assert.equal(cards.length, plugins.length)
+    assert.equal(cards.length, displayPlugins.length)
     for (const card of cards) for (const control of card.match(/<(?:a|button)\b[^>]*>/g)) assert.ok(control.includes('tabindex="-1"'))
   }
-  for (const p of plugins) assert.equal((home.match(new RegExp('href="' + p.download.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '"', 'g')) || []).length, 3)
+  for (const p of displayPlugins.filter(p => !p.platformPlugins)) assert.equal((home.match(new RegExp('href="' + p.download.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '"', 'g')) || []).length, 3)
 })
 
 
@@ -992,9 +997,10 @@ test('dragging the full-card selection button does not activate a plugin', () =>
 test('plugin cards expose full-card selection and render concrete feature details below', () => {
   const home = readFileSync(resolve(dist, 'index.html'), 'utf8')
   const panel = home.split('id="plugin-demo"')[1].split('plugin-compatibility')[0]
-  for (const p of plugins) {
+  for (const p of displayPlugins) {
     assert.ok(p.features.length > 0)
-    assert.ok(home.includes('aria-label="查看' + p.name + '的具体功能"'))
+    const label = p.platformPlugins ? '选择' + p.name + '下载' : '查看' + p.name + '的具体功能'
+    assert.ok(home.includes('aria-label="' + label + '"'))
   }
   assert.ok(panel.includes('比赛二路同步自动演示'))
   assert.ok(panel.includes('match-sync-demo'))

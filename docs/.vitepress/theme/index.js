@@ -2,6 +2,7 @@ import DefaultTheme from 'vitepress/theme'
 import HomePage from './HomePage.vue'
 import PluginCatalog from './PluginCatalog.vue'
 import PluginInfo from './PluginInfo.vue'
+import PlatformDownloads from './PlatformDownloads.vue'
 import PluginSubmission from './PluginSubmission.vue'
 import ThemeLayout from './ThemeLayout.vue'
 import FeatureDemo from './FeatureDemo.vue'
@@ -15,6 +16,7 @@ export default {
     app.component('HomePage', HomePage)
     app.component('PluginCatalog', PluginCatalog)
     app.component('PluginInfo', PluginInfo)
+    app.component('PlatformDownloads', PlatformDownloads)
     app.component('PluginSubmission', PluginSubmission)
     app.component('FeatureDemo', FeatureDemo)
   }
