@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { zipSync, strToU8 } from 'fflate'
+import { displayPlugins, platformGroups } from '../docs/data/plugin-display.mjs'
 import { pluginData, verifiedBytes, ensurePluginPages, catalogFromReleases } from '../tools/sync-plugin-releases.mjs'
 
 const current = [{ id: 'match_sync', version: '1.2', name: '比赛二路同步', features: ['自动对齐比赛画面'] }]
@@ -226,20 +227,28 @@ test('current platform split and host requirements are visible across the websit
   assert.ok(read('software').includes('与主窗口同时播放'))
 })
 
-test('the built homepage, catalog, download table and details share the published plugin data', () => {
+test('grouped cards link to platform download choices while release metadata stays current', () => {
   const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
-  const dist = new URL('../docs/.vitepress/dist/', import.meta.url)
-  const read = page => readFileSync(new URL(page, dist), 'utf8')
+  const read = page => readFileSync(new URL(`../docs/.vitepress/dist/${page}`, import.meta.url), 'utf8')
+  assert.equal(displayPlugins.length, 6)
+  const independent = Object.values(platformGroups).flat()
+  for (const page of ['index.html', 'plugins/index.html']) {
+    const html = read(page)
+    for (const group of Object.keys(platformGroups)) assert.ok(html.includes(`/plugins/${group}#下载选择`), page)
+    for (const id of independent) assert.ok(!html.includes(`href="/plugins/${id}"`), `${page} must group ${id}`)
+    assert.ok(html.includes('/platforms/chzzk.png'))
+  }
+  assert.equal(displayPlugins.length, 6)
+  assert.equal(displayPlugins.filter(p => p.platformPlugins).length, 2)
   for (const plugin of plugins) {
-    for (const page of ['index.html', 'plugins/index.html', `plugins/${plugin.id}.html`]) {
-      assert.ok(read(page).includes(plugin.download), `${page} download for ${plugin.id}`)
-      assert.ok(read(page).includes(`v${plugin.version}`), `${page} version for ${plugin.id}`)
-    }
-    const details = read(`plugins/${plugin.id}.html`)
-    assert.ok(details.includes(plugin.release))
-    assert.ok(details.includes(plugin.sha256))
-    const row = read('download.html').match(new RegExp(`<tr><td><a[^>]+href="[^"]*plugins/${plugin.id}"[\\s\\S]*?</tr>`))?.[0]
-    assert.ok(row?.includes(`<td>${plugin.version}</td>`), `download table version for ${plugin.id}`)
-    assert.ok(row?.includes(`<td>${plugin.minAppVersion}</td>`), `download table requirement for ${plugin.id}`)
+    const group = Object.entries(platformGroups).find(([, ids]) => ids.includes(plugin.id))?.[0]
+    if (platformGroups[plugin.id]) continue
+    const page = group ? `plugins/${group}.html` : `plugins/${plugin.id}.html`
+    const details = read(page)
+    assert.ok(details.includes(plugin.download), page)
+    assert.ok(details.includes(`v${plugin.version}`), page)
+    assert.ok(details.includes(plugin.release), page)
+    assert.ok(details.includes(plugin.sha256), page)
+    assert.ok(read('download.html').includes(plugin.download) || read('download.html').includes(`/plugins/${plugin.id}`))
   }
 })

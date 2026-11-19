@@ -1,7 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { withBase } from 'vitepress'
-import plugins from '../../data/plugins.json'
+import { displayPlugins as plugins } from '../../data/plugin-display.mjs'
 
 const query = ref('')
 const category = ref('全部')
@@ -27,15 +27,15 @@ const filtered = computed(() => plugins.filter(p =>
       <div class="card-top">
         <div class="platform-icons"><img v-for="(icon, i) in p.icons" :key="icon"
           :src="withBase('/platforms/' + icon)" :alt="p.platforms[i]" width="32" height="32" /></div>
-        <span class="version">v{{ p.version }}</span>
+        <span class="version">{{ p.platformPlugins ? '按平台选择' : 'v' + p.version }}</span>
       </div>
-      <h2><a :href="withBase('/plugins/' + p.id)">{{ p.name }}</a></h2>
+      <h2><a :href="withBase('/plugins/' + p.id + (p.platformPlugins ? '#下载选择' : ''))">{{ p.name }}</a></h2>
       <p>{{ p.description }}</p>
       <div class="platform-tags"><span v-for="platform in p.platforms" :key="platform">{{ platform }}</span></div>
       <ul><li v-for="feature in p.features" :key="feature">{{ feature }}</li></ul>
       <p class="requirement">需配套更新的软件 · <a :href="withBase('/download#插件兼容性')">查看兼容要求</a></p>
-      <div class="card-actions"><a class="action primary" :href="p.download">下载 ZIP</a>
-        <a class="detail-link" :href="withBase('/plugins/' + p.id)">查看详情 ↗</a></div>
+      <div class="card-actions"><a class="action primary" :href="p.platformPlugins ? withBase('/plugins/' + p.id + '#下载选择') : p.download">{{ p.platformPlugins ? '选择平台下载' : '下载 ZIP' }}</a>
+        <a class="detail-link" :href="withBase('/plugins/' + p.id + (p.platformPlugins ? '#下载选择' : ''))">查看详情 ↗</a></div>
     </article>
   </div>
   <div v-if="!filtered.length" class="empty-result"><p>没有匹配的插件。试试平台名称，或清空筛选。</p>
