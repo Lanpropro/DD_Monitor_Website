@@ -230,15 +230,22 @@ test('current platform split and host requirements are visible across the websit
 test('grouped cards link to platform download choices while release metadata stays current', () => {
   const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
   const read = page => readFileSync(new URL(`../docs/.vitepress/dist/${page}`, import.meta.url), 'utf8')
-  assert.equal(displayPlugins.length, 6)
   const independent = Object.values(platformGroups).flat()
+  const expectedCards = plugins.filter(plugin => !independent.includes(plugin.id))
+  assert.deepEqual(displayPlugins.map(plugin => plugin.id), expectedCards.map(plugin => plugin.id))
+  const catalog = read('plugins/index.html')
+  const cards = catalog.match(/<article class="plugin-card">[\s\S]*?<\/article>/g) ?? []
+  assert.equal(cards.length, expectedCards.length)
+  for (const plugin of expectedCards) {
+    const target = platformGroups[plugin.id] ? '#下载选择' : ''
+    assert.equal(cards.filter(card => card.includes(`/plugins/${plugin.id}${target}"`)).length, 1, plugin.id)
+  }
   for (const page of ['index.html', 'plugins/index.html']) {
     const html = read(page)
     for (const group of Object.keys(platformGroups)) assert.ok(html.includes(`/plugins/${group}#下载选择`), page)
     for (const id of independent) assert.ok(!html.includes(`href="/plugins/${id}"`), `${page} must group ${id}`)
     assert.ok(html.includes('/platforms/chzzk.png'))
   }
-  assert.equal(displayPlugins.length, 6)
   assert.equal(displayPlugins.filter(p => p.platformPlugins).length, 2)
   for (const plugin of plugins) {
     const group = Object.entries(platformGroups).find(([, ids]) => ids.includes(plugin.id))?.[0]

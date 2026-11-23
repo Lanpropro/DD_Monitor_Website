@@ -359,5 +359,45 @@
     "sha256": "2c18c417d3ba995a958e15c6ef8b6bbbe7c1dddce3185cb3d65e0a19562723e2",
     "minAppVersion": "0.7.3",
     "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/proxy-control-v1.0"
+  },
+  {
+    "id": "qie_live",
+    "name": "企鹅体育",
+    "description": "企鹅体育公开房间、720p 原生播放和只读弹幕",
+    "version": "1.0",
+    "category": "功能扩展",
+    "platforms": [],
+    "icons": [],
+    "features": [
+      "企鹅体育公开房间、720p 原生播放和只读弹幕"
+    ],
+    "featureDetails": [
+      "企鹅体育公开房间、720p 原生播放和只读弹幕"
+    ],
+    "autoCatalog": true,
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/qie-live-v1.0/qie_live-1.0.zip",
+    "sha256": "7af3e6d1c04ec29342905e93719d00bb78a427e36d58ee6c02c6efc59349103d",
+    "minAppVersion": "0.8",
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/qie-live-v1.0"
+  },
+  {
+    "id": "m3u_live",
+    "name": "IPTV Play",
+    "description": "将电视预设、M3U 频道和 HLS 直播加入关注，使用原有画面墙播放",
+    "version": "1.0",
+    "category": "功能扩展",
+    "platforms": [],
+    "icons": [],
+    "features": [
+      "将电视预设、M3U 频道和 HLS 直播加入关注，使用原有画面墙播放"
+    ],
+    "featureDetails": [
+      "将电视预设、M3U 频道和 HLS 直播加入关注，使用原有画面墙播放"
+    ],
+    "autoCatalog": true,
+    "download": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/m3u-live-v1.0/m3u_live-1.0.zip",
+    "sha256": "3a974893b5ec032cf34bd31e182721361b2018ebbeba49b5b6588eaef2892381",
+    "minAppVersion": "0.8",
+    "release": "https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/m3u-live-v1.0"
   }
 ]
