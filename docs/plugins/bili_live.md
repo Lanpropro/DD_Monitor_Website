@@ -2,10 +2,10 @@
 title: "B站直播互动"
 ---
 
-# 插件详情
+# B站直播互动
 
-<PluginInfo id="bili_live" />
+DD监控室CE v0.9.1 已内置 B 站直播互动。登录 B 站账号后，可在直播格或弹幕栏发送弹幕和表情，以及浏览和发送直播礼物。
 
-## 安装与使用
+[下载 DD监控室CE](/download) · [本体功能说明](https://github.com/Lanpropro/DD_Monitor_CE/blob/v0.9.1/docs/plugins.md)
 
-请先确认最低软件版本，再[按安装教程导入 ZIP](/guide#安装插件)。具体功能、使用要求及更新记录见上方“发布说明”。
+感谢 [@reon-nynes](https://github.com/reon-nynes) 提供原插件。

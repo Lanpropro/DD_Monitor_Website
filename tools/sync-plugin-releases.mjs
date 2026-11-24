@@ -84,6 +84,7 @@ export async function catalogFromReleases(releases, request = fetch) {
       const match = /^([a-z][a-z0-9_]*)-(\d+\.\d+(?:\.\d+)?)\.zip$/.exec(asset.name)
       if (!match) continue
       const [, id, version] = match
+      if (id === 'bili_live') continue // Built into DD Monitor CE.
       if (release.html_url !== `${repository}/releases/tag/${release.tag_name}` || asset.state !== 'uploaded' || asset.browser_download_url !== `${repository}/releases/download/${release.tag_name}/${asset.name}` || !/^sha256:[a-f0-9]{64}$/.test(asset.digest)) {
         throw new Error(`Invalid published plugin asset: ${asset.name}`)
       }
