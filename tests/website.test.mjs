@@ -169,7 +169,7 @@ const walk = dir => readdirSync(dir, { withFileTypes: true }).flatMap(item => {
 test('catalog identities and published versions are explicit without a plugin source checkout', () => {
   assert.ok(plugins.length >= 4)
   assert.equal(new Set(plugins.map(p => p.id)).size, plugins.length)
-  assert.ok(plugins.some(p => p.id === 'bili_live'))
+  assert.ok(plugins.some(p => p.id === 'bili_watchlater'))
   for (const p of plugins) {
     // Published artifacts can be newer than this checkout (e.g. match_sync).
     assert.match(p.version, /^\d+\.\d+(?:\.\d+)?$/)

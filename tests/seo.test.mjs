@@ -6,7 +6,7 @@ import { resolve } from 'node:path'
 const dist = resolve(import.meta.dirname, '../docs/.vitepress/dist')
 const read = file => readFileSync(resolve(dist, file), 'utf8')
 const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url)))
-const routes = ['', 'software', 'download', 'guide', 'plugins/', ...plugins.map(p => `plugins/${p.id}`)]
+const routes = ['', 'software', 'download', 'guide', 'plugins/', 'plugins/bili_live', ...plugins.map(p => `plugins/${p.id}`)]
 
 test('the header GitHub icon opens the software repository on all content pages', () => {
   for (const route of routes) {
