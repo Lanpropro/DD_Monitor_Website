@@ -12,14 +12,16 @@ import { pluginData, verifiedBytes, ensurePluginPages, catalogFromReleases } fro
 
 const current = [{ id: 'match_sync', version: '1.2', name: '比赛二路同步', features: ['自动对齐比赛画面'] }]
 
-test('Bilibili 1.1 download metadata matches the verified public release', () => {
+test('built-in Bilibili interaction has a software link instead of a plugin download', () => {
   const plugins = JSON.parse(readFileSync(new URL('../docs/data/plugins.json', import.meta.url), 'utf8'))
-  const plugin = plugins.find(item => item.id === 'bili_live')
-  assert.equal(plugin.version, '1.1')
-  assert.equal(plugin.minAppVersion, '0.5.1')
-  assert.equal(plugin.download, 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/download/bili-live-v1.1/bili_live-1.1.zip')
-  assert.equal(plugin.release, 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases/tag/bili-live-v1.1')
-  assert.equal(plugin.sha256, '0afa256d970f4ddf03f24de23522555ac5dcd11ddb75e9f1372a56c88db7c992')
+  assert.ok(!plugins.some(plugin => plugin.id === 'bili_live'))
+  const read = page => readFileSync(new URL(`../docs/.vitepress/dist/${page}.html`, import.meta.url), 'utf8')
+  for (const page of ['index', 'plugins/index', 'plugins/bili_live', 'software', 'download']) {
+    assert.ok(!read(page).includes('/releases/download/bili-live-v1.1/'), page)
+  }
+  const detail = read('plugins/bili_live')
+  assert.ok(detail.includes('已内置 B 站直播互动'))
+  assert.ok(detail.includes('>下载 DD监控室CE</a>'))
 })
 
 function publishedFixture() {
@@ -43,6 +45,23 @@ test('independent stable ZIP releases synchronize without a catalog and choose n
   assert.equal(result[0].version, '1.10')
   assert.equal(result[0].minAppVersion, '0.6')
   assert.ok(result[0].release.endsWith('match-sync-v1.10'))
+})
+
+test('the website catalog skips the built-in plugin before and after its Release is removed', async () => {
+  const fixture = publishedFixture()
+  const other = fixture.release('1.5')
+  const url = 'https://github.com/Lanpropro/DD_Monitor_Plugins/releases'
+  const tag = 'bili-live-v1.1'
+  const name = 'bili_live-1.1.zip'
+  const retired = {
+    tag_name: tag, html_url: `${url}/tag/${tag}`,
+    assets: [{ name, state: 'uploaded', browser_download_url: `${url}/download/${tag}/${name}`,
+      digest: `sha256:${'a'.repeat(64)}` }]
+  }
+  const withRetired = await catalogFromReleases([other, retired], fixture.request)
+  const withoutRetired = await catalogFromReleases([other], fixture.request)
+  assert.deepEqual(withRetired, withoutRetired)
+  assert.deepEqual(withRetired.plugins.map(plugin => plugin.id), ['match_sync'])
 })
 
 test('legacy manifests use only catalog requirements matching the exact verified ZIP', async () => {
@@ -170,12 +189,12 @@ test('independent releases update overseas URLs even when its version is unchang
 
 test('new published plugins join once and remain stable on later synchronizations', () => {
   const catalog = fixture()
-  catalog.plugins.push({ ...catalog.plugins[0], id: 'bili_live', name: 'B站直播互动', description: '发送弹幕与表情',
-    min_app_version: '0.5.1', asset_name: 'bili_live-1.4.zip',
-    url: catalog.plugins[0].url.replace('match_sync-1.4.zip', 'bili_live-1.4.zip') })
+  catalog.plugins.push({ ...catalog.plugins[0], id: 'example_live', name: 'B站直播互动', description: '发送弹幕与表情',
+    min_app_version: '0.5.1', asset_name: 'example_live-1.4.zip',
+    url: catalog.plugins[0].url.replace('match_sync-1.4.zip', 'example_live-1.4.zip') })
   const result = pluginData(catalog, current)
   assert.equal(result.length, 2)
-  assert.equal(result[1].id, 'bili_live')
+  assert.equal(result[1].id, 'example_live')
   assert.equal(result[1].minAppVersion, '0.5.1')
   assert.equal(result[1].autoCatalog, true)
   assert.deepEqual(pluginData(catalog, result), result)
@@ -184,7 +203,7 @@ test('new published plugins join once and remain stable on later synchronization
   catalog.plugins.pop()
   catalog.plugins[1].id = '../escape'
   assert.throws(() => pluginData(catalog, current), /metadata/)
-  catalog.plugins[1].id = 'bili_live'
+  catalog.plugins[1].id = 'example_live'
   catalog.plugins[1].sha256 = 'bad'
   assert.throws(() => pluginData(catalog, current), /checksum/)
 })
