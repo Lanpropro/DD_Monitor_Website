@@ -52,6 +52,22 @@ test('a published hotfix release synchronizes its exact installer URL', () => {
   assert.throws(() => releaseData(data, {}))
 })
 
+test('software release sync rejects version rollback while allowing the same release', () => {
+  const data = fixture()
+  for (const currentTag of ['v0.6', 'v0.5.9']) {
+    assert.equal(releaseData(data, { tag: currentTag }).tag, 'v0.6')
+  }
+  for (const currentTag of ['v0.6-hotfix.1', 'v0.7', 'v1.0']) {
+    assert.throws(() => releaseData(data, { tag: currentTag }), /would decrease/)
+  }
+  const hotfix = fixture()
+  hotfix.tag_name = 'v0.7.2-hotfix.2'
+  hotfix.html_url = `${repository}/releases/tag/${hotfix.tag_name}`
+  hotfix.assets[0].browser_download_url = `${repository}/releases/download/${hotfix.tag_name}/DDMonitorSetup.exe`
+  assert.equal(releaseData(hotfix, { tag: 'v0.7.2-hotfix.1' }).tag, hotfix.tag_name)
+  assert.throws(() => releaseData(hotfix, { tag: 'v0.7.3' }), /would decrease/)
+})
+
 test('drafts, prereleases and incomplete or untrusted assets cannot be published', () => {
   for (const mutate of [
     data => { data.draft = true },
