@@ -19,7 +19,7 @@ import { withBase } from 'vitepress'
   <a class="action secondary" :href="release.release">查看 {{ release.tag }} 发布说明</a>
 </div>
 
-<p>当前版本 <strong>{{ release.tag }}</strong>，发布于 {{ release.publishedOn }}。上方按钮直接下载官方 <code>{{ release.packageName }}</code>。GitHub 自动生成的 Source code 是源码，不是安装器。</p>
+<p>当前正式版 <strong>{{ release.tag }}</strong>，发布于 {{ release.publishedOn }}。上方按钮直接下载官方 <code>{{ release.packageName }}</code>。GitHub 自动生成的 Source code 是源码，不是安装器。</p>
 
 <details><summary>核对安装包 SHA256</summary>
 <code class="checksum">{{ release.sha256 }}</code>
@@ -27,11 +27,11 @@ import { withBase } from 'vitepress'
 
 安装器支持创建快捷方式及卸载。[安装与启动帮助](/guide#启动软件)。
 
-0.8 用户请使用本次 Release 中的最新安装器，包含热修复 1；版本仍显示 0.8，内部修订号为 1。原始 0.8 的独立平台商店识别和稍后再看接口不完整，可覆盖升级并保留配置。
+仍在使用 0.8 的用户，可在「设置 → 软件更新」检查新版本，也可用上方的正式版安装器覆盖升级并保留配置。
 
 ## 插件兼容性
 
-建议先将软件升级到最新公开版，再安装插件。各插件的最低软件版本见下表，还需要配套软件提供相应功能与运行库。
+建议先将软件升级到最新正式版，再安装插件。各插件的最低软件版本见下表，还需要配套软件提供相应功能与运行库。
 
 <table>
 <thead><tr><th>插件</th><th>下载版本</th><th>最低软件版本</th><th>使用要求</th></tr></thead>
