@@ -190,6 +190,7 @@ input:focus, button:focus-visible, a:focus-visible, summary:focus-visible { outl
   .hero-description { font-size: 16px; }
 }
 @media (max-width: 700px) {
+  .VPFooter .footer-contact { padding-inline: 46px; }
   .showcase { padding: 0 22px; }
   .hero { grid-template-columns: 1fr; gap: 26px; padding: 40px 0 20px; }
   .hero h1 { font-size: clamp(32px, 8.8vw, 52px); }

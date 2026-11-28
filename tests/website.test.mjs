@@ -13,16 +13,20 @@ const plugins = JSON.parse(read('docs/data/plugins.json'))
 const dist = resolve(root, 'docs/.vitepress/dist')
 const base = process.env.SITE_BASE || '/DD_Monitor_Website/'
 
-test('the shared footer exposes the requested Bilibili profile without a personal QQ number', () => {
-  for (const page of ['index.html', 'download.html', 'software.html', 'guide.html']) {
+test('the homepage feedback link leads to the QQ group in the shared footer', () => {
+  for (const page of ['index.html', 'download.html', 'software.html', 'guide.html', 'plugins/index.html']) {
     const html = readFileSync(resolve(dist, page), 'utf8')
     const footer = html.match(/<footer class="VPFooter[^"]*"[^>]*>[\s\S]*?<\/footer>/)?.[0]
     assert.ok(footer, `${page} should have a footer`)
     assert.match(footer, /href="https:\/\/space\.bilibili\.com\/193559518"[^>]*target="_blank"[^>]*rel="noopener noreferrer"/)
     assert.ok(footer.includes('B 站主页'))
+    assert.match(footer, /<span id="qq-feedback" tabindex="-1">QQ 群：1137444883<\/span>/)
     assert.ok(!footer.includes('1328781988'))
-    assert.ok(!footer.includes('QQ：'))
     assert.ok(footer.includes('软件与插件分别维护'))
+    if (page === 'index.html') {
+      const actions = html.match(/<div class="hero-actions">[\s\S]*?<\/div>/)?.[0]
+      assert.match(actions, /href="#qq-feedback"[^>]*>QQ 群反馈 <span aria-hidden="true">↓<\/span>/)
+    }
   }
 })
 
@@ -245,7 +249,7 @@ test('homepage exposes software and every plugin download before JavaScript runs
   for (const label of ['横屏观看', '弹幕布局', '竖屏布局']) assert.ok(home.includes(label))
   const release = JSON.parse(read('docs/data/software-release.json'))
   assert.ok(home.includes(release.download))
-  assert.ok(home.includes(`${release.tag} 已发布`))
+  assert.ok(home.includes(`${release.tag} 正式版`))
   for (const plugin of displayPlugins) {
     assert.ok(home.includes(plugin.platformPlugins ? `${base}plugins/${plugin.id}#下载选择` : plugin.download), `missing homepage download: ${plugin.id}`)
     assert.ok(home.includes(plugin.name), `missing homepage plugin: ${plugin.id}`)
