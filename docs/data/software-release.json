@@ -1,10 +1,10 @@
 {
-  "verifiedOn": "2026-11-22",
-  "publishedOn": "2026-11-22",
-  "tag": "v0.9",
+  "verifiedOn": "2026-11-24",
+  "publishedOn": "2026-11-24",
+  "tag": "v0.9.1",
   "packageName": "DDMonitorSetup.exe",
-  "download": "https://github.com/Lanpropro/DD_Monitor_CE/releases/download/v0.9/DDMonitorSetup.exe",
-  "release": "https://github.com/Lanpropro/DD_Monitor_CE/releases/tag/v0.9",
+  "download": "https://github.com/Lanpropro/DD_Monitor_CE/releases/download/v0.9.1/DDMonitorSetup.exe",
+  "release": "https://github.com/Lanpropro/DD_Monitor_CE/releases/tag/v0.9.1",
   "legacyPackage": {
     "verifiedOn": "2026-10-03",
     "tag": "v0.2",
@@ -21,5 +21,5 @@
       ]
     }
   },
-  "sha256": "37b14b1ec5dbd7572ace098b7b0d793c81524307e9838792657a6ebb4328e437"
+  "sha256": "4b8a98b5a8c89c3070a400aecf55371fcca62077b240f3b1a2c469dcca8a1372"
 }

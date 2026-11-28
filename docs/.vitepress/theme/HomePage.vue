@@ -70,10 +70,11 @@ onUnmounted(() => {
         <h1 id="hero-title" tabindex="-1">喜欢的直播，<br /><span>在同一屏相遇。</span></h1>
       </div>
       <div class="hero-intro" data-reveal data-reveal-delay="120">
-        <a class="release-badge" :href="release.release">{{ release.tag }} 已发布 <span aria-hidden="true">↗</span></a>
+        <a class="release-badge" :href="release.release">{{ release.tag }} 正式版 <span aria-hidden="true">↗</span></a>
         <p class="hero-description">把直播、声音和弹幕放进一面画面墙。横屏、竖屏，按你的方式观看。</p>
         <div class="hero-actions"><a class="action primary" :href="release.download">下载 DD 监控室 CE <span aria-hidden="true">↗</span></a>
-          <a class="action secondary" href="#plugins">探索插件</a></div>
+          <a class="action secondary" href="#plugins">探索插件</a>
+          <a class="action secondary" href="#qq-feedback" target="_self">QQ 群反馈 <span aria-hidden="true">↓</span></a></div>
         <p class="hero-note">Windows 10 / 11 · 免费开源 · B 站原生支持</p>
       </div>
       <ScreenshotShowcase>
