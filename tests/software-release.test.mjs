@@ -7,7 +7,7 @@ test('software introduction describes monitoring and recording with a synchroniz
   const source = readFileSync(new URL('../docs/software.md', import.meta.url), 'utf8')
   const html = readFileSync(new URL('../docs/.vitepress/dist/software.html', import.meta.url), 'utf8')
   const release = JSON.parse(readFileSync(new URL('../docs/data/software-release.json', import.meta.url)))
-  for (const text of ['直播监控室', '多路录制', '比赛二路同步插件', '共同比赛画面']) assert.ok(html.includes(text))
+  for (const text of ['直播监控室', '多路录制', '比赛二路同步插件', '共同比赛画面', '自动录制计划', '直播周表图片', '单格即时回放', '自动追帧']) assert.ok(html.includes(text), text)
   assert.ok(html.includes(release.tag))
   assert.ok(html.includes(release.release))
   assert.ok(html.includes(`当前正式版为 <strong>${release.tag}</strong>`))
